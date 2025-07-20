@@ -155,14 +155,14 @@ $\textbf{x}_i$ -- координаты левого верхнего угла к
 Недостатком обратной модели является предположение о статичности сцены: в случае наличия динамических объектов в сцене, такие объекты оставляют за собой <<след>>, который не удаляется с локальной карты проходимости пространства, если нет источника данных способного отмечать области в которых препятствия отсутствуют. Даже при наличии такого источника, <<след>> может попасть в его слепую зону и остаться на карте. Для решения данной проблемы, мы вводим механизм <<затухания>> -- показания каждой клетки экспоненциально затухают, возвращаясь в состояние "неизвестно" без повторных обновлений от источников данных (см. листинг ~\ref{code:dim})
 
 \begin{algorithm}
-	\caption{dim(\widehat{M}_{i-1}, \Delta t)}
+	\caption{$dim(\widehat{M}_{i-1}, \Delta t)$}
 	\label{code:dim}
 	\begin{algorithmic}[1]
 		\State $a \gets$ some float-number hyper-param 
 		\State $\widehat{M_{i}} \gets \text{2D array of size: } rows(\widehat{M}_{i-1})\times cols(\widehat{M}_{i-1})$
 		\For{$j=0$ to $rows(M)$}
 		\For{$k=0$ to $cols(M)$}
-		\State $\widehat{M_{i}}^{j,k} \gets  \exp(-a\Delta t)\widehat{M}\limits_{i-1}^{j,k}$
+		\State $\widehat{M_{i}}^{j,k} \gets  \exp(-a\Delta t)\widehat{M}_{i-1}^{j,k}$
 		\EndFor
 		\EndFor
 		\State
