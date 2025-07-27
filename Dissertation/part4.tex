@@ -3,15 +3,15 @@
 \section{Introduction}
 Для решения задачи навигации высокоавтоматизированным транспортным средствам (ВАТС) требуется хранить в памяти модель окружающего пространства. Данная модель должна быть достаточно точной и полной для гарантии качества и безопасности осуществляемого движения. В то же время она должна быть вычислительно эффективной как с точки зрения занимаемой памяти, так и времени вычисления на бортовом вычислителе ВАТС. Для достижения требуемой эффективности разрабатываются модели представления окружающего пространства, фокусирующиеся только на малом подмножестве признаков реального мира, необходимых для качественного решения задачи навигации.
 
-Одной из распространённых моделей в робототехнике является карта проходимости пространства -- модель, представляющая пространство как двумерную сетку, каждой клетке которой сопоставляется вероятность нахождения препятствия в пространстве, ограниченной этой клеткой. На сегодняшний день предложено множество алгоритмов построения карты проходимости пространства. Их реализация сравнительно проста в случае, если информация об окружающем пространстве поступает от единственного сенсора. Примеры таких систем представлены в статьях~\autocite{wang2018single} и \cite{luo2019probability}. Однако для большинства практических задач единственного сенсора недостаточно, из-за ограниченного поля зрения, невозможностью полностью компенсировать зашумлённость входных данных, и общими ограничениями, обусловленными принципом его работы.  Так, например, использование камер видимого диапазона невозможно в ночное время суток, а качество работы лидаров снижается в условиях сильных осадков.
+Одной из распространённых моделей в робототехнике является карта проходимости пространства -- модель, представляющая пространство как двумерную сетку, каждой клетке которой сопоставляется вероятность нахождения препятствия в пространстве, ограниченной этой клеткой. На сегодняшний день предложено множество алгоритмов построения карты проходимости пространства. Их реализация сравнительно проста в случае, если информация об окружающем пространстве поступает от единственного сенсора. Примеры таких систем представлены в статьях~\autocite{wang2018single} и \autocite{luo2019probability}. Однако для большинства практических задач единственного сенсора недостаточно, из-за ограниченного поля зрения, невозможностью полностью компенсировать зашумлённость входных данных, и общими ограничениями, обусловленными принципом его работы.  Так, например, использование камер видимого диапазона невозможно в ночное время суток, а качество работы лидаров снижается в условиях сильных осадков.
 
-Чтобы получить более точную модель окружения и повысить безопасность движения ВАТС, на них устанавливаются несколько сенсоров. Примеры систем с несколькими сенсорами описаны в работах~\cite{xu2020data}, \cite{rosenband2017inside}. Встречаются как системы, использующие несколько сенсоров одного типа (например, камеры, как в работе \cite{bertozzi1998experience}), так и комбинирующие различные сенсоры, например: 
+Чтобы получить более точную модель окружения и повысить безопасность движения ВАТС, на них устанавливаются несколько сенсоров. Примеры систем с несколькими сенсорами описаны в работах~\autocite{xu2020data}, \autocite{rosenband2017inside}. Встречаются как системы, использующие несколько сенсоров одного типа (например, камеры, как в работе \autocite{bertozzi1998experience}), так и комбинирующие различные сенсоры, например: 
 \begin{itemize}
-	\item лидары+радары. Пример такого робота представлен в~\cite{gohring2011radar};
-	\item лидары+камеры~\cite{tibebu2021lidar}),
+	\item лидары+радары. Пример такого робота представлен в~\autocite{gohring2011radar};
+	\item лидары+камеры~\autocite{tibebu2021lidar}),
 	\item и другие комбинации. 
 \end{itemize}
-Алгоритмы построения карты проходимости пространства для таких систем в общем случае генерируют карту достаточно полную и точную, но вынуждены решать задачу комплексирования данных для разрешения противоречий показаний с разных сенсоров. В работе \cite{sasiadek2002sensor} представлена классификация методов комплексирования данных по трем группам:
+Алгоритмы построения карты проходимости пространства для таких систем в общем случае генерируют карту достаточно полную и точную, но вынуждены решать задачу комплексирования данных для разрешения противоречий показаний с разных сенсоров. В работе \autocite{sasiadek2002sensor} представлена классификация методов комплексирования данных по трем группам:
 
 \begin{enumerate}
 	\item Методы, использующие вероятностные модели. К ним относятся Байесовский вывод (Bayesian reasoning), теория Демпстера — Шафера (англ. evidence theory), робастные методы (англ. robust statistics) и т.д.
@@ -19,9 +19,9 @@
 	\item Методы интеллектуального комплексирования: методы нечёткой логики, нейросетевые и генетические алгоритмы. 
 \end{enumerate}
 
-В настоящее время продолжается активная разработка алгоритмов каждого из трех типов. Примером актуальных исследований в первой группе --  работа~\cite{duong2022autonomous}, в которой используется метод релевантных векторов (метод машинного обучения, использующий Байесовский вывод) для построения непрерывной карты проходимости. Во второй группе можно выделить работу~\cite{9274841}, в которой положение динамических препятствий на карте обновляется с помощью фильтра Калмана. Стоит отметить, что в данной работе обновление информации о статических препятствиях происходит с помощью Байесовского вывода, поэтому предлагаемый алгоритм является объединением методов из двух представленных групп. Наконец, не менее активно развиваются алгоритмы третьей группы, одним из которых является модель глубокого обучения BEVFusion, представленная в работе~\cite{liu2024bevfusionmultitaskmultisensorfusion}.    
+В настоящее время продолжается активная разработка алгоритмов каждого из трех типов. Примером актуальных исследований в первой группе --  работа~\autocite{duong2022autonomous}, в которой используется метод релевантных векторов (метод машинного обучения, использующий Байесовский вывод) для построения непрерывной карты проходимости. Во второй группе можно выделить работу~\autocite{9274841}, в которой положение динамических препятствий на карте обновляется с помощью фильтра Калмана. Стоит отметить, что в данной работе обновление информации о статических препятствиях происходит с помощью Байесовского вывода, поэтому предлагаемый алгоритм является объединением методов из двух представленных групп. Наконец, не менее активно развиваются алгоритмы третьей группы, одним из которых является модель глубокого обучения BEVFusion, представленная в работе~\autocite{liu2024bevfusionmultitaskmultisensorfusion}.    
 
-В данной работе мы предлагаем модификацию алгоритма, относящегося к первой группе -- картирование на основе Байесовского вывода с использованием обратной модели измерения. Выбор данного подхода обусловлен простотой модификации базовой реализации, низкой вычислительной сложностью, а также хорошей масштабируемостью при увеличении количества используемых источников входных данных.  Первая версия данного алгоритма была представлена в работе Моравица~\cite{Moravec_1988}. В рамках этого алгоритма делается предположение, что каждая вероятность занятости клетки в карте проходимости не зависит от вероятностей занятости других клеток карты. Для каждой клетки вычисляется величина так называемого логарифма шансов:
+В данной работе мы предлагаем модификацию алгоритма, относящегося к первой группе -- картирование на основе Байесовского вывода с использованием обратной модели измерения. Выбор данного подхода обусловлен простотой модификации базовой реализации, низкой вычислительной сложностью, а также хорошей масштабируемостью при увеличении количества используемых источников входных данных.  Первая версия данного алгоритма была представлена в работе Моравица~\autocite{Moravec_1988}. В рамках этого алгоритма делается предположение, что каждая вероятность занятости клетки в карте проходимости не зависит от вероятностей занятости других клеток карты. Для каждой клетки вычисляется величина так называемого логарифма шансов:
 
 \begin{equation}
 	l_{t,i} = \log\dfrac{p(m_i|z_{1:t}, x_{1:t})}{1 - p(m_i|z_{1:t}, x_{1:t})},
@@ -114,24 +114,23 @@ $\textbf{x}_i$ -- координаты левого верхнего угла к
 \end{figure}
 
 \begin{algorithm}
+	\LinesNumbered
 	\caption{update\_map}
 	\label{code:update}
-	\begin{algorithmic}[1]
-		\State $P_{s,k}, x_{s,k}, t_{s,k} \gets \text{pop PatchQueue}$
-		\If{$t_{s,k} > t_{i-1}$}
-		\State $x_i \gets get\_map\_pose(t_{s,k})$
-		\State $t_i \gets t_{s,k}$
-		\State $M_{actual} \gets shift\_map(M_{i-1}, x_i - x_{i-1})$
-		\State $M_{actual} \gets dim(M_{actual}, t_i - t_{i-1})$
-		\Else
-		\State $x_i \gets x_{i-1}$
-		\State $t_i \gets t_{i-1}$
-		\State $M_{actual} \gets M_{i-1}$
-		\EndIf
-		\State $P_{aligned}, patch\_shift \gets align\_patch(P_{s,k}, t_{s,k}, t_{i}, ppm / ppm_{s})$
-		\State $P_{aligned} \gets dim(P_{aligned}, t_i - t_{s,k})$
-		\State $M_i \gets add\_patch(M_{actual}, P_{aligned}, patch\_shift)$
-	\end{algorithmic}
+	$P_{s,k}, x_{s,k}, t_{s,k} \gets \text{pop PatchQueue}$\;
+	\eIf{$t_{s,k} > t_{i-1}$}{
+		$x_i \gets get\_map\_pose(t_{s,k})$\;
+		$t_i \gets t_{s,k}$\;
+		$M_{actual} \gets shift\_map(M_{i-1}, x_i - x_{i-1})$\;
+		$M_{actual} \gets dim(M_{actual}, t_i - t_{i-1})$\;
+    }{
+		$x_i \gets x_{i-1}$\;
+		$t_i \gets t_{i-1}$\;
+		$M_{actual} \gets M_{i-1}$\;
+	}
+	$P_{aligned}, patch\_shift \gets align\_patch(P_{s,k}, t_{s,k}, t_{i}, ppm / ppm_{s})$\;
+	$P_{aligned} \gets dim(P_{aligned}, t_i - t_{s,k})$\;
+	$M_i \gets add\_patch(M_{actual}, P_{aligned}, patch\_shift)$\;
 \end{algorithm}
 
 \begin{figure}[ht!]
@@ -155,19 +154,17 @@ $\textbf{x}_i$ -- координаты левого верхнего угла к
 Недостатком обратной модели является предположение о статичности сцены: в случае наличия динамических объектов в сцене, такие объекты оставляют за собой <<след>>, который не удаляется с локальной карты проходимости пространства, если нет источника данных способного отмечать области в которых препятствия отсутствуют. Даже при наличии такого источника, <<след>> может попасть в его слепую зону и остаться на карте. Для решения данной проблемы, мы вводим механизм <<затухания>> -- показания каждой клетки экспоненциально затухают, возвращаясь в состояние "неизвестно" без повторных обновлений от источников данных (см. листинг ~\ref{code:dim})
 
 \begin{algorithm}
+	\LinesNumbered
 	\caption{$dim(\widehat{M}_{i-1}, \Delta t)$}
 	\label{code:dim}
-	\begin{algorithmic}[1]
-		\State $a \gets$ some float-number hyper-param 
-		\State $\widehat{M_{i}} \gets \text{2D array of size: } rows(\widehat{M}_{i-1})\times cols(\widehat{M}_{i-1})$
-		\For{$j=0$ to $rows(M)$}
-		\For{$k=0$ to $cols(M)$}
-		\State $\widehat{M_{i}}^{j,k} \gets  \exp(-a\Delta t)\widehat{M}_{i-1}^{j,k}$
-		\EndFor
-		\EndFor
-		\State
-		\Return $\widehat{M_{i}}$
-	\end{algorithmic}
+	$a \gets$ some float-number hyper-param\; 
+	$\widehat{M_{i}} \gets \text{2D array of size: } rows(\widehat{M}_{i-1})\times cols(\widehat{M}_{i-1})$\;
+	\For{$j=0$ \KwTo $rows(M)$}{
+		\For{$k=0$ \KwTo $cols(M)$}{
+			$\widehat{M_{i}}^{j,k} \gets  \exp(-a\Delta t)\widehat{M}_{i-1}^{j,k}$\;
+		}	
+	}
+	\Return{$\widehat{M_{i}}$}
 \end{algorithm}
 
 Также на шаге добавления фрагмента на карту мы вводим механизм против "перезарадки" клеток карты: если динамическое препятствие долго стояло неподвижно, а потом сдвинулось, то логарифм шансов освободившегося пространства останется отрицательным,
@@ -197,18 +194,12 @@ $$l_{t} = \max\left(\min\left[\text{inv\_mes\_model}(t), l_{thresh}\right], -l_{
 
 \begin{algorithm}
 	\caption{$shift\_map(M, x_{i+1}, t_{i+1})$ (base 1D case)}\label{alg:base_shift}
-	\begin{algorithmic}[1]
-		\State $\Delta x \gets \text{round}(x_{i+1} - x_i)$
-		\State $j \gets 0$
-		\For{$j=0$ to $N$}
-		\If{$j + \Delta x\in [0;N)$}
-		\State $M[j] \gets M[j + \Delta x]$
-		\Else
-		\State $M[j] \gets 0$
-		\EndIf
-		\EndFor
-		\State \Return $M$
-	\end{algorithmic}
+	$\Delta x \gets \text{round}(x_{i+1} - x_i)$\;
+	$j \gets 0$\;
+	\For{$j=0$ \KwTo $N$}{
+		\eIf{$j + \Delta x\in [0;N)$}{$M[j] \gets M[j + \Delta x]$\;}{$M[j] \gets 0$\;}
+	}
+	\Return $M$
 \end{algorithm}
 
 \subsubsection{Обновление}
@@ -216,21 +207,20 @@ $$l_{t} = \max\left(\min\left[\text{inv\_mes\_model}(t), l_{thresh}\right], -l_{
 Процесс обновления в одномерном случае во многом повторяет алгоритм, представленный в \ref{sec:map_description}. Отметим только, что в данном случае <<доворачивание>> фрагмента не требуется, и необходимо только учесть сдвиг карты за промежуток времени между моментом регистрации фрагмента и итоговым временем регистрации карты после обновления. Дополнительно введём обозначение размера фрагмента $P$: $N_P$. Итоговая реализация алгоритма представлена в листинге~\ref{alg:base_upd}.
 
 \begin{algorithm}
+	\LinesNumbered
 	\caption{$update\_map(P_s, t_{s,k}, x_{s,k})$ (base 1D case)}\label{alg:base_upd}
-	\begin{algorithmic}[1]
-		\State $x_{t_{s,k}} \gets \text{local occupancy map pose at } t_{s,k}$
-		\If{$t_{s,k} > t_i$}
-		\State $M \gets shift\_map(M, x_{t_{s,k}}, t_{s,k})$
-		\State $M \gets dim(M, t_{s,k} - t_i)$ 
-		\Else
-		\State $x_{s,k} \gets x_{s,k} - (x_{t_i} - x_{t_{s,k}})$
-		\State $P_s \gets dim(P_s, t_{i} - t_{s,k})$
-		\EndIf
-		\State $\Delta x_{s} \gets \text{round}(x_{s,k} - x_{i})$
-		\For {$j \gets \max(0, \Delta x_{s})$ to $\min(N_P;N + \Delta x_{s})$}
-		\State $M[j - \Delta x_{s}] \gets M[j - \Delta x_{s}] + P_s[j]$
-		\EndFor
-	\end{algorithmic}
+	$x_{t_{s,k}} \gets \text{local occupancy map pose at } t_{s,k}$\;
+	\eIf{$t_{s,k} > t_i$}{
+		$M \gets shift\_map(M, x_{t_{s,k}}, t_{s,k})$\;
+		$M \gets dim(M, t_{s,k} - t_i)$\;
+	}{
+	    $x_{s,k} \gets x_{s,k} - (x_{t_i} - x_{t_{s,k}})$\;
+	    $P_s \gets dim(P_s, t_{i} - t_{s,k})$\;
+	}
+	$\Delta x_{s} \gets \text{round}(x_{s,k} - x_{i})$\;
+	\For {$j \gets \max(0, \Delta x_{s})$ \KwTo $\min(N_P;N + \Delta x_{s})$}{
+	   $M[j - \Delta x_{s}] \gets M[j - \Delta x_{s}] + P_s[j]$\;
+	}
 \end{algorithm}
 
 Первая часть алгоритма (до цикла добавления фрагмента на карту) имеет вычислительную сложность $\Theta(1)$, если $t_{patch} <= t_{M}$, и, как показано в предыдущем пункте, $\Theta(N)$ (операция затухания карты имеет ту же вычислительную сложность) в противном случае. Если патч целиком помещается во второй части алгоритма будет выполнено $\Theta(N_P)$ операций. Если же фрагмент больше карты и полностью её покрывает будет выполнено $\Theta(N)$  операций. В то же время вторая часть алгоритма может не выполняться вовсе в случае если фрагмент не пересекается с картой. Таким образом вычислительная сложность второй части алгоритма: $O(\min(N_P, N))$, а суммарная вычислительная сложность всего алгоритма: $O(N + \min(N_P, N))$.
@@ -258,14 +248,13 @@ $$l_{t} = \max\left(\min\left[\text{inv\_mes\_model}(t), l_{thresh}\right], -l_{
 
 \begin{algorithm}
 	\caption{$shift\_map(M, x_{i+1}, t_{i+1})$ (prefetched)}\label{alg:prefetched_shift}
-	\begin{algorithmic}[1]
-		\If {$(\widehat{x} - x_{i+1}) \in [N/2; \widehat{N} - N/2)$}
-		\State \Return M
-		\EndIf
-		\State \dots
-		\State \Comment{Previous map\_shift implementation but for whole prefetched map}
-		\State \dots
-	\end{algorithmic}
+	\If {$(\widehat{x} - x_{i+1}) \in [N/2; \widehat{N} - N/2)$}{
+		\Return M\;
+	}
+	\DontPrintSemicolon
+	\dots\;
+	\tcp{Previous map\_shift implementation but for whole prefetched map}
+    \dots\;
 \end{algorithm}
 
 \subsubsection{Обновление}
@@ -292,38 +281,39 @@ $$l_{t} = \max\left(\min\left[\text{inv\_mes\_model}(t), l_{thresh}\right], -l_{
 
 \begin{algorithm}
 	\caption{$update\_map(P_s, t_{s,k}, x_{s,k})$ (partially lockfree)}\label{alg:partially_lockfree_upd}
-	\begin{algorithmic}[1]
-		\State \Comment{Enter section with allowed simultaneous update}
-		\State $shared\_lock(map\_access\_mutex)$
-		\State $x_{t_{s,k}} \gets \text{local occupancy map pose at } t_{s,k}$
-		\If{\text(Shift is required)}  \Comment{Critical section start}
-		\State $unique\_lock(map\_access\_mutex)$
-		\If {Shift is still required and was not performed by other update}
-		\State $M \gets shift\_map(M, x_{t_{s,k}}, t_{s,k})$
-		\Else
-		\State $x_{s,k} \gets x_{s,k} - (x_{t_i} - x_{t_{s,k}})$
-		\EndIf
-		\Else \Comment{Critical section end}
-		\State $x_{s,k} \gets x_{s,k} - (x_{t_i} - x_{t_{s,k}})$
-		\EndIf
-		\State $\Delta x_{s} \gets \text{round}(x_{s,k} - x_{i})$
-		\For {$j \gets \max(0, \Delta x_{s})$ to $\min(N_P;N + \Delta x_{s})$}
-		\State $t_{prev} \gets 0$
-		\State $val_{prev} \gets 0$
-		\State $t_{new} \gets t_{s,k}$
-		\State $val_{new} \gets P_s[j]$
-		\State
-		\While {$CAS(M[j - \Delta x_{s}], \{val_{prev}, t_{prev}\}, \{val_{new}, t_{new}\})$ failed}  \Comment{Compare and swap values until success. $\{val_{prev}, t_{prev}\}$ are actualized in case CAS fails}
-		\If {$t_{prev} < t_{s,k}$} 
-		\State $t_{new}  \gets t_{s,k}$
-		\State $val_{new}  \gets val_{prev} \exp(-a(t_{s,k} - t_{prev})) + P_s[j]$ 
-		\Else
-		\State $t_{new}  \gets t_{prev}$
-		\State $val_{new}  \gets val_{prev} + P_s[j] \exp(-a(t_{prev} - t_{s,k}))$ 
-		\EndIf
-		\EndWhile
-		\EndFor
-	\end{algorithmic}
+	\tcp{Enter section with allowed simultaneous update}
+	$shared\_lock(map\_access\_mutex)$\;
+	$x_{t_{s,k}} \gets \text{local occupancy map pose at } t_{s,k}$\;
+	\eIf{\text(Shift is required)}{
+		\tcp{Critical section start}
+		$unique\_lock(map\_access\_mutex)$\;
+		\eIf{Shift is still required and was not performed by other update}{
+			$M \gets shift\_map(M, x_{t_{s,k}}, t_{s,k})$
+		}{
+			$x_{s,k} \gets x_{s,k} - (x_{t_i} - x_{t_{s,k}})$\;
+		}
+		\tcp{Critical section end}
+	}{
+	  $x_{s,k} \gets x_{s,k} - (x_{t_i} - x_{t_{s,k}})$\;
+	}
+	$\Delta x_{s} \gets \text{round}(x_{s,k} - x_{i})$\;
+	\For {$j \gets \max(0, \Delta x_{s})$ \KwTo $\min(N_P;N + \Delta x_{s})$}{
+		$t_{prev} \gets 0$\;
+		$val_{prev} \gets 0$\;
+		$t_{new} \gets t_{s,k}$\;
+		$val_{new} \gets P_s[j]$\;
+		\BlankLine
+		\While {$CAS(M[j - \Delta x_{s}], \{val_{prev}, t_{prev}\}, \{val_{new}, t_{new}\})$ failed}{
+			\tcp{Compare and swap values until success. $\{val_{prev}, t_{prev}\}$ are actualized in case CAS fails}
+			\eIf{$t_{prev} < t_{s,k}$}{
+				$t_{new}  \gets t_{s,k}$\;
+				$val_{new}  \gets val_{prev} \exp(-a(t_{s,k} - t_{prev})) + P_s[j]$\;
+			}{
+				$t_{new}  \gets t_{prev}$\;
+				$val_{new}  \gets val_{prev} + P_s[j] \exp(-a(t_{prev} - t_{s,k}))$\;
+			}
+		}
+	}
 \end{algorithm} 
 
 Теоретически данная операция может выполняться неограниченно долго, если на между попытками сравнения с обменом происходит обновление клетки в другой операции обновления. На практике незавершаемость операции практически невозможна ввиду в первую очередь ограниченного числа потоков, работающих одновременно (в нашем случае их $12$, на современных вычислителях используемых в робототехнике их число варьируется от $8$ до $24$). Если пренебречь единичными пересчётами обновляемых значений, сложность такой операции становится $O(\min(N_P, N))$ ($O(\widehat{N} + \min(N_P, N))$, если во время выполнения операции произошёл <<полноценный>> сдвиг карты). Однако константа в этом случае будет заметно больше, чем в предыдущих вариантах, из-за использования а) атомарных операций, которые в несколько раз вычислительно дороже, неатомарных аналогов и б) shared\_mutex, который имеет значительно большее время блокировки в сравнении с обычным mutex-ом. Поэтому эта реализация становится выгоднее предыдущих вариантов при условии достаточного количества источников производящих одновременное обновление карты. 
@@ -359,21 +349,19 @@ $$l_{t} = \max\left(\min\left[\text{inv\_mes\_model}(t), l_{thresh}\right], -l_{
 
 \begin{algorithm}
 	\caption{$shift\_map(M, x_{i+1}, t_{i+1})$ (fully lockfree)}\label{alg:fully_lockfree_shift}
-	\begin{algorithmic}[1]
-		\If {Current map center is between $M_1$ and $M_2$ centers}
-		\Return $M$
-		\EndIf
-		\State $M_c \gets$ fragment with current map
-		\State $\widehat{x} \gets$ $M_c$ center
-		\If {$\left|\widehat{x} - x_{i+1}\right| > \Delta_{lim}$}
-		\State $M_{new} \gets$ new fragment of size $\widehat{N}$
-		\For{ $i \gets 0$ to $\widehat{N}$}
-		\State $M_{new}[i] \gets \{0, 0\}$
-		\EndFor
-		\State Swap pointer to $M_{new}$ with second fragment (not $M_c$)
-		\EndIf
-		\Return $M$
-	\end{algorithmic}
+	\If{Current map center is between $M_1$ and $M_2$ centers}{
+		\Return{$M$}
+	}
+	$M_c \gets$ fragment with current map\;
+	$\widehat{x} \gets$ $M_c$ center\;
+	\If{$\left|\widehat{x} - x_{i+1}\right| > \Delta_{lim}$}{
+		$M_{new} \gets$ new fragment of size $\widehat{N}$\;
+		\For{ $i \gets 0$ \KwTo $\widehat{N}$}{
+			$M_{new}[i] \gets \{0, 0\}$\;
+			Swap pointer to $M_{new}$ with second fragment (not $M_c$)\;
+		}
+		\Return{$M$}
+	}
 \end{algorithm}
 
 Вычислительная сложность, как и ранее, $\Theta(1)$, в общем случае, когда обновляется только координата отображаемой части локальной карты проходимости пространства. $\Theta(\widehat{N})$, если происходит замена второго фрагмента.
