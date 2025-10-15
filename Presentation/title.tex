@@ -1,7 +1,7 @@
 \setbeamertemplate{title page}
 {
     \ifnumequal{\value{logotitle}}{1}{
-        \IfFileExists{images/logo.pdf}{
+        \IfFileExists{images/IITP_logo_long_rus.png}{
             \begin{minipage}[c]{0.15\textwidth}
                 \begin{flushleft}
                     \usebeamercolor[fg]{titlegraphic}\inserttitlegraphic
@@ -35,17 +35,17 @@
 \title{\thesisTitle}
 \author{%
     \texorpdfstring{%
-        \emph{Выступающий:}~\thesisAuthorShort\\%
-        \emph{Руководитель:}~\supervisorRegaliaShort~\supervisorFioShort\\%
+        \emph{Соискатель:}~\thesisAuthorShort\\%
+        \emph{Научный руководитель:}~\supervisorRegaliaShort~\supervisorFioShort\\%
         %
     }{\thesisAuthor}%
 }
 \date{\texorpdfstring{\thesisCity, \thesisYear}{}}
 \institute{\texorpdfstring{\thesisOrganization}{}}
-\IfFileExists{images/logo.pdf}{
-    \titlegraphic{\includegraphics[width=\textwidth]{images/logo}}
+\IfFileExists{images/IITP_logo_long_rus.png}{
+    \titlegraphic{\includegraphics[width=\textwidth]{images/IITP_logo_long_rus}}
     \ifnumequal{\value{logoother}}{1}{
-        \logo{\includegraphics[width=0.15\textwidth]{images/logo}}
+        \logo{\includegraphics[width=0.15\textwidth]{images/IITP_logo_long_rus}}
     }{}
 }{}
 \subtitle{Представление на соискание учёной степени \thesisDegree\ по специальности \thesisSpecialtyNumber\ \thesisSpecialtyTitle}
