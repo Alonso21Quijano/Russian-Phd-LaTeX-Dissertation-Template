@@ -2,12 +2,15 @@
 
 \newif\ifpresentation % Условие, проверяющее, что документ --- презентация
 \presentationtrue
+
+
 \documentclass[10pt, xcolor={dvipsnames, table, hyperref}]{beamer}
 
 \input{common/setup}               % Общие настройки шаблона
 \input{common/packages}            % Пакеты общие для диссертации и автореферата
 \input{common/data}                % Основные сведения
 \input{common/fonts}               % Определение шрифтов (частичное)
+\usepackage[linesnumbered,lined,boxed]{algorithm2e}
 
 \input{Presentation/setup}         % Настройки презентации
 \input{Presentation/prespackages}  % Библиотеки презентации
@@ -29,5 +32,5 @@
 \input{Presentation/content}       % Настройки заглавной странице
 \input{Presentation/conclusion}    % Последние слайды презентации
 \appendix
-\input{Presentation/appendix}      % Запасные слайды презентации
+%\input{Presentation/appendix}      % Запасные слайды презентации
 \end{document}
