@@ -25,23 +25,7 @@
 	\end{minipage}
 \end{frame}
 
-\begin{frame}[allowframebreaks]
-	\frametitle{Алгоритм проекции визуальных детекций на плоскость
-движения БТС на основе модели L-Shape}
-    \small
-    \textbf{Предложен} алгоритм оценки положения ТС на плоскость движения БТС на основе модели L-Shape. Алгоритм состоит из двух шагов: 
-    \begin{enumerate}
-    	\item проекция нижней границы ТС на плоскость движения БТС,
-    	\item вписывание полученной проекции в ориентированную ограничивающую рамку.
-    \end{enumerate}
-    
-    Для предлагаемого алгоритма делается дополнительное предположение:
-    \begin{enumerate}
-    	\item на изображении видны не более двух смежных сторон ТС,
-    	\item смежные стороны ТС ортогональны.
-    \end{enumerate}
-    
-    \framebreak
+\begin{frame}
     \begin{minipage}{0.5\linewidth}
     	\begin{enumerate}
     		\item Берем $N$ равномерно распределенных точек на нижней границе ограничивающей рамки.
@@ -53,112 +37,6 @@
 	\centering
 	\includegraphics[width=\linewidth]{images/l-shape.png}
 	\end{minipage}
-	
-	\framebreak
-	Необходимо оценить параметры двух ортогональных прямых: 
-	$l: y = kx + d_1$ и $l': x = -ky+d_2$, таких что минимизируется среднеквадратичное отклонение вписываемых точек до соответствующей прямой.
-	
-	Согласно сделанным ранее предположениям:
-	\begin{align*}
-		\exists m \in \{1,\dots,N - 1\}\hookrightarrow& \forall i \in \{1,\dots,m\}, p_i = (x_i, y_i) \in l;\\
-		&\forall i \in \{m+1,\dots,N\},p_i = (x_i, y_i) \in l'
-	\end{align*}
-	
-	Для некоторого фиксированного $m$, задача минимизации выглядит следующим образом:
-	
-	\begin{equation*}
-		\operatorname*{argmin}_{k, d_1,d_2}\left(\begin{pmatrix}
-			x_1 & 1 & 0 \\
-			x_2 & 1 & 0 \\
-			\vdots & \vdots  & \vdots  \\
-			x_{m} & 1 & 0 \\
-			-y_{m + 1} & 0 & 1 \\
-			\vdots & \vdots  & \vdots  \\
-			-y_{N} & 0 & 1 \\
-		\end{pmatrix} 
-		\begin{pmatrix}
-			k \\
-			d_1\\
-			d_2 \\
-		\end{pmatrix} - \begin{pmatrix}
-			y_1 \\
-			y_2\\
-			\vdots \\
-			y_{m} \\
-			x_{m + 1} \\
-			\vdots \\
-			x_{N} \\
-		\end{pmatrix}\right)^2    
-	\end{equation*}
-	
-	Введя дополнительные обозначения, мы можем переписать это выражение следующим образом:
-	
-	\begin{equation*}
-		\operatorname*{argmin}_{a}\left(\begin{pmatrix}
-			\widehat{x} & 1 & 0 \\
-			-\widehat{y} & 0 & 1 \\
-		\end{pmatrix} 
-		a - \begin{pmatrix}
-			\widetilde{y} \\
-			\widetilde{x} \\
-		\end{pmatrix}\right)^2
-	\end{equation*}
-	
-	И далее:
-	
-	\begin{equation*}
-		\operatorname*{argmin}_{a}\left(Xa - y \right)^2
-	\end{equation*}
-	
-	Решением данной задачи минимизации является:
-	
-	\begin{align}
-		a^* &= \left(X^TX\right)^{-1}X^Ty \label{eq:optimal_lsh_sol}\\
-		\text{ESS} &= a^{*T}X^TXa - 2 a^{*T}X^Ty - y^Ty \label{eq:optimal_lsh_sol_mse}
-	\end{align}
-	
-	\framebreak
-	Итоговый алгоритм вписывания проекции в рамку имеет следующий вид:
-	
-	\begin{enumerate}
-		\item Перебираем все значения $m \in \{1,\dots,N-1\}$
-		\item Пересчитываем матрицы $X,y$
-		\item Находим $a^*$, MSE для каждой задачи минимизации по формулам~\ref{eq:optimal_lsh_sol},\ref{eq:optimal_lsh_sol_mse}
-		\item В качестве финального решения для $l, l'$ выбираем $a^*$ с наименьшим MSE.
-		\item Обрамляем вписываемый набор точек линиями параллельными $l$ и $l'$. Область ограниченная полученными линиями -- искомая ограничивающая рамка.
-	\end{enumerate}
-	
-	\textbf{В работе предложена реализация }алгоритма, имеющая вычислительную сложность $O(N)$, где $N$ -- число точек вписываемой проекции.
-\end{frame}
-
-\begin{frame}{Экспериментальное исследование. Данные}
-	\begin{itemize}
-		\item Объект испытаний -- грузовое БТС «EVO.1»;
-		\item Подготовлен тестовый набор с реальными сценами из $4$ локаций, $12$ видеопоследовательностей, $93$ кадров. 
-		\item Набор включает вручную размеченные эталонные значения положения окружающих ТС.
-	\end{itemize}
-	\centering
-	\includegraphics[width=0.8\linewidth]{images/scenes.png}
-\end{frame}
-
-
-\begin{frame}{Экспериментальное исследование. Методология}
-	\footnotesize
-	\begin{itemize}
-		\item Предложенный алгоритм сравнивался с пятью подходами:
-		\begin{itemize}
-			\item наивный подход поиска рамки минимальной площади,
-			\item четыре алгоритма оценки положения ТС из работы, посвящённой схожей задаче для лидарных облаков точек\footnote{Optimal Vehicle Pose Estimation Network Based on Time Series and Spatial Tightness with 3D LiDARs [Текст] / H. Wang [и др.] // Remote Sensing. — 2021.}.
-		\end{itemize}
-		\item Для оценки качества алгоритма использовался усреднённое значение коэффициента Жаккара:
-		$$IoU(pr,gt) = \dfrac{S(pr\cap gt)}{S(pr\cup gt)},$$
-		где $pr$ -- оценённая рамка, $gt$ -- эталонная рамка, $S(x)$ -- площадь многоугольника $x$.
-		\begin{figure}
-		\centering
-		\includegraphics[width=0.4\linewidth]{IoU}
-		\end{figure}
-	    \item Дополнительно исследовалось качество всех сравниваемых алгоритмов при ограничении расстояния до ТС.
-	\end{itemize}
 \end{frame}
 
 \begin{frame}[allowframebreaks]
@@ -239,9 +117,29 @@
 	\end{algorithm}
 \end{frame}
 
-\begin{frame}{Пример результата работы алгоритма}
-	\centering
-	\includegraphics[width=0.8\linewidth]{images/true3ddet_demo}
+\begin{frame}[allowframebreaks]
+	\frametitle{Экспериментальное исследование. Результаты}
+	\begin{table}[h!]
+		\centering
+		\caption{Статистики полученных коэффициентов Жаккара для сравниваемых алгоритмов}
+		\label{tab:stats_t3dd}
+		\begin{tabular}{|c|c|c|c|c|c|c|}
+			\hline
+			%\backslashbox{Statistic}{Method}
+			&           \rotatebox{60}{RPCA}  &      \rotatebox{60}{DPCA}      &    \rotatebox{60}{LD}  &        \rotatebox{60}{RT}   &     \rotatebox{60}{Ours}   &  \rotatebox{60}{L-shape} \\ \hline
+			Modality& LiDAR& LiDAR&LiDAR&LiDAR&\parbox{0.6cm}{\centering \tiny LiDAR+\\ Camera\\} &Camera\\ \hline
+			Mean&               0.396&       0.399&       0.335&       0.339&       \textbf{0.439}&       0.329\\ \hline
+			Std&                0.222&       0.222&       0.188&       0.215&       0.256&       0.147\\ \hline
+			Min&                0.008&       0.007&       0.004&       0.009&       0.004&       \textbf{0.078}\\ \hline
+			25\%&                0.212&       0.209&       0.187&       0.175&       \textbf{0.219}&       0.217\\ \hline
+			50\%&                0.400&       0.399&       0.331&       0.330&       \textbf{0.423}&       0.311\\ \hline
+			75\%&                0.562&       0.566&       0.457&       0.439&       \textbf{0.652}&       0.457\\ \hline 
+			Max&                0.872&       0.871&       0.734&       0.915&       \textbf{0.925}&       0.736\\ \hline
+		\end{tabular}
+	\end{table}
+	
+	\framebreak
+	\includegraphics[width=\linewidth]{images/true3ddet_dist_plot}
 \end{frame}
 
 \begin{frame}{Важность учёта слепых зон при планировании движения}
@@ -303,32 +201,42 @@
 	\end{minipage}
 \end{frame}
 
-\begin{frame}{Алгоритм проекции сегментации проезжей части на изображении на плоскость движения БTC}
-	\begin{itemize}
-		\item \textbf{Предложен} алгоритм проекции проезжей части на изображении на плоскость движения БТС.
-		\item Искомые $z(x,y)$ происходит путём разбиения триангуляцией Делоне точек земли входного облака точек с последующей линейной интерполяцией $z$ внутри полученных треугольников\footnote{Reconstructed three-dimensional electron momentum density in lithium: A Compton scattering study [Текст] / Y. Tanaka [и др.] // Phys. Rev. B. — 2001}:
-		$$z=\dfrac{z_1S_1 + z_2S_2 + z_3S_3}{S_1+S_2+S_3}$$
-	\end{itemize}
-	
-	\centering 
-	\begin{minipage}{0.54\linewidth}
-		\includegraphics[width=\linewidth]{images/whydelaunay}
-	\end{minipage}
-	\begin{minipage}{0.45\linewidth}
-		\includegraphics[width=0.9\linewidth]{images/z_interpolation}
-	\end{minipage}
-\end{frame}
+\begin{frame}[allowframebreaks]
+	\frametitle{Экспериментальное исследование. Результаты}
+\begin{table}[]
+	\caption{Метрики качества генерируемой карты проходимости пространства}
+	\label{tab:stats_t3ds}
+	\footnotesize	
+	\begin{tabular}{|cccc|}
+		\hline
+		\multicolumn{4}{|c|}{MSE}                                                                                                                                                                                               \\ \hline
+		\multicolumn{1}{|c|}{}        & \multicolumn{1}{c|}{Число кадров} & \multicolumn{1}{c|}{Базовый метод} & \begin{tabular}[c]{@{}c@{}}Базовый метод + учёт \\ проекции на карту \\ проходимости пространства\end{tabular} \\ \hline
+		\multicolumn{1}{|c|}{Сцена 1} & \multicolumn{1}{c|}{91}           & \multicolumn{1}{c|}{0.319}         & \textbf{0.299 (-6.4\%)}                                                                                        \\ \hline
+		\multicolumn{1}{|c|}{Сцена 2} & \multicolumn{1}{c|}{90}           & \multicolumn{1}{c|}{0.243}         & \textbf{0.231 (-5.2\%)}                                                                                        \\ \hline
+		\multicolumn{1}{|c|}{Сцена 3} & \multicolumn{1}{c|}{93}           & \multicolumn{1}{c|}{0.251}         & \textbf{0.242 (-3.6\%)}                                                                                        \\ \hline
+		\multicolumn{1}{|c|}{Сцена 4} & \multicolumn{1}{c|}{48}           & \multicolumn{1}{c|}{0.378}         & \textbf{0.348 (-7.8\%)}                                                                                        \\ \hline
+		\multicolumn{1}{|c|}{Сцена 5} & \multicolumn{1}{c|}{87}           & \multicolumn{1}{c|}{0.197}         & \textbf{0.195 (-1.3\%)}                                                                                        \\ \hline
+		\multicolumn{1}{|c|}{Итого}   & \multicolumn{1}{c|}{409}          & \multicolumn{1}{c|}{0.268}         & \textbf{0.255 (-5\%)}                                                                                          \\ \hline
+	\end{tabular}
+\end{table}
 
-\begin{frame}{Модификация алгоритма для обнаружения препятствий на проезжей части}
-	\begin{minipage}{0.56\linewidth}
-	\footnotesize
-	\begin{itemize}
-		\item Можно модифицировать предложенный алгоритм для обнаружения низких объектов, если сделать предположение, что <<вырезы>> в полученной проекции -- тени таких объектов.
-    \end{itemize}	
-    \end{minipage}
-    \begin{minipage}{0.43\linewidth}
-    	\includegraphics[width=\textwidth]{images/true3dsegm_demo}
-    \end{minipage}
+\begin{table}[]
+	\footnotesize	
+	\begin{tabular}{|cccc|}
+		\hline
+		\multicolumn{4}{|c|}{PFC-MSE}                                                                                                                                                                                          \\ \hline
+		\multicolumn{1}{|c|}{}        & \multicolumn{1}{c|}{Число кадров} & \multicolumn{1}{c|}{Базовый метод} & \begin{tabular}[c]{@{}c@{}}Базовый метод + учёт\\ проекции на карту \\ проходимости пространства\end{tabular} \\ \hline
+		\multicolumn{1}{|c|}{Сцена 1} & \multicolumn{1}{c|}{91}           & \multicolumn{1}{c|}{1538.0}        & \textbf{1408.7 (-8.4\%)}                                                                                      \\ \hline
+		\multicolumn{1}{|c|}{Сцена 2} & \multicolumn{1}{c|}{90}           & \multicolumn{1}{c|}{1379.8}        & \textbf{1239.3 (-10.2\%)}                                                                                     \\ \hline
+		\multicolumn{1}{|c|}{Сцена 3} & \multicolumn{1}{c|}{93}           & \multicolumn{1}{c|}{1344.7}        & \textbf{1173.4 (-12.7\%)}                                                                                     \\ \hline
+		\multicolumn{1}{|c|}{Сцена 4} & \multicolumn{1}{c|}{48}           & \multicolumn{1}{c|}{920.6}         & \textbf{836.8 (-9.1\%)}                                                                                       \\ \hline
+		\multicolumn{1}{|c|}{Сцена 5} & \multicolumn{1}{c|}{87}           & \multicolumn{1}{c|}{556.8}         & \textbf{529.7 (-4.9\%)}                                                                                       \\ \hline
+		\multicolumn{1}{|c|}{Итого}   & \multicolumn{1}{c|}{409}          & \multicolumn{1}{c|}{1178.1}        & \textbf{1063.9 (-9.7\%)}                                                                                      \\ \hline\hline
+	\end{tabular}
+\end{table}
+	
+	\framebreak
+	\includegraphics[width=\linewidth]{images/true3ddet_dist_plot}
 \end{frame}
 
 \begin{frame}{Карта проходимости пространства}
@@ -364,20 +272,6 @@
 	\end{minipage}
 \end{frame}
 
-\begin{frame}{Метод картографирования с обратной моделью наблюдений}
-	
-	Элементы карты  $m_i$ хранят значения:
-	$$l_i = l(m_i|\textbf{x}_{1:i}, \textbf{z}_{1:S,1:k}) = \ln\left(\dfrac{p(m_i|\textbf{x}_{1:i}, \textbf{z}_{1:S,1:k})}{1 - p(m_i|\textbf{x}_{1:i}, \textbf{z}_{1:S,1:k})}\right),$$ 
-	где $p(m_i|\textbf{x}_{1:i}, \textbf{z}_{1:S,1:k})$ -- вероятность нахождения препятствия в пространстве, описываемом $m_i$.
-	 
-	При таком формате хранимого, получая следующее измерение $\textbf{z}_{s, j}$, значение $m_i$ обновляется по формуле:
-	$$l_{i+1} = l_{i} + \underbrace{l(m_i|\textbf{x}_{i+1}, \textbf{z}_{s, j}) - l(m_i)}_{l_+},$$
-	где $l(m_i|\textbf{x}_{i+1}, \textbf{z}_{s, j})$ -- \textbf{обратная модель наблюдений}, $l(m_i)$ -- априорное значение $m_i$.
-	
-	Значение вероятности восстанавливается по формуле:
-	$$p(m_i|\textbf{x}_{1:i}, \textbf{z}_{1:S,1:k}) = \dfrac{\exp{l_i}}{1+\exp{l_i}}$$
-\end{frame}
-
 \begin{frame}{Программный комплекc построения карты проходимости пространства на основе комплексирования разнородных данных}
 	\textbf{Разработан} программный комплекс, осуществляющий построение карты проходимости пространства, по получаемым измерениям с бортовых датчиков. 
 	
@@ -385,17 +279,6 @@
 	\includegraphics[width=\linewidth]{images/OMF_UML.png}
 \end{frame}	
 
-
-\begin{frame}{Принцип построения карты проходимости пространства}
-	\footnotesize
-	\begin{itemize}
-		\item По измерения каждого датчика в отдельном потоке выполнения строится фрагмент карты, хранящий значения $l_+$, которые необходимо добавить на итоговую карту проходимости пространства;
-		\item Фрагменты складываются в очередь;
-		\item В отдельном потоке выполнения фрагменты извлекаются из очереди и добавляются на карту.
-	\end{itemize}
-		
-	\includegraphics[width=\linewidth]{images/OMF_dataflow.png}	
-\end{frame}
 
 \begin{frame}{Функциональные возможности программного комплекса}
 	Программный комплекс предоставляет следующие функциональные возможности:
@@ -428,63 +311,22 @@
 	\end{figure}
 \end{frame}
 
-\begin{frame}{Модификации алгоритма построения карты проходимости пространства}
+\begin{frame}\frametitle{Модификации алгоритма построения карты проходимости пространства}
 	
 	\begin{itemize}
 		\item В работе \textbf{предложено} три последовательные модификации оригинальной реализации.
-		\item Для упрощения модификации реализованы для одномерного случая.
-		\item Модификации направлены на снижение вычислительной сложности применяемых к карте операций, а также добавления возможности одновременной модификации карты несколькими источниками без блокировок.
-		\item Применяемые к карте операции:
 		\begin{itemize}
-			\item Сдвиг
-			\item Добавление фрагмента
-			\item Получение карты проходимости пространства
+			\item Предварительное выделение памяти для описания окружающего пространства смежного с текуще картой, 
+			\item Изменение формата хранимых элементов карты для обновления без блокировок,
+			\item Разделение карты на два участка для реализации сдвига карты без её блокировки,
 		\end{itemize}
+		\item Для упрощения модификации реализованы для одномерного случая.
 	\end{itemize}
 	
 	\centering
-	\includegraphics[width=0.6\linewidth]{images/BaseOMF}
-\end{frame}	
-
-\begin{frame}{Расширенная карта проходимости пространства}
-	
-	\begin{itemize}
-	\item Сдвиг -- вычислительно дорогая операция для базовой реализации: $O(N)$ операций, где $N$ количество элементов карты.
-	\item Для снижения вычислительной сложности \textbf{предложено} увеличить размер массива, хранящего карту, до $\widehat{N} > N$.
-	\item В общем случае сдвиг требует только модификации координат положения отображаемого участка карты ($O(1)$ операций)
-	\item Сдвиг массива требуется только при достижении картой границы массива ($O(\widehat{N})$ операций)
-	\item Амортизационная вычислительная сложность операции $O(1)$.
-	\end{itemize}
-	
-	\centering
-	\includegraphics[width=\linewidth]{images/PrefetchedOMF}
-\end{frame}
-
-\begin{frame}{Карта проходимости с разделяемыми блокировками}
-	
-	\begin{itemize}
-		\item Основным препятствием для одновременного добавления на карту нескольких фрагментов, является необходимость хранить все элементы карты приведёнными к единому моменту времени.
-		\item Чтобы обойти это препятствие \textbf{предложено} изменить формат элемента карты проходимости пространства, добавив к хранимому значению $l_i$ время  $t_i$, которое описывает элемент.
-		\item Все операции записи/чтения элемента выполняются атомарно. При добавлении фрагмента значение обновляется через сравнение с обменом (Compare and Swap, CAS)
-		\item Таким образом добавление фрагмента может быть выполнено одновременно с другими операциями добавления, если они не приводят к сдвигу массива (сдвиг остаётся блокирующей операцией).
-	\end{itemize}
-	
-	\centering
-	\includegraphics[width=0.6\linewidth]{atomic_cell}
-\end{frame}
-
-
-\begin{frame}{Карта проходимости с обновлением без блокировок}
-	
-	\begin{itemize}
-		\item Для полного избавления от блокировок \textbf{предложено} разделить массив на два независимых участка. 
-		\item Участки описывают смежные области пространства.
-		\item При приближении к выходу за границы пространства хранимого в памяти, элементы участка на котором нет видимой части карты сбрасываются и начинают описывать область, куда движется видимая часть карты.
-	\end{itemize}
-	
 	\centering
 	\includegraphics[width=\linewidth]{images/FullyLockFreeOMFShift}
-\end{frame}
+\end{frame}	
 
 \begin{frame}{Экспериментальное исследование}
 	\begin{itemize}
@@ -498,42 +340,6 @@
 		\end{itemize} 
 		\item Все сценарии производились над картами размера $N$: $10, 16, 32, 64, 128, 256, 516, 1024, 2048, 4000$ (для первых двух модификаций размер хранимого массива, а также размер одного участка последней модификации $\widehat{N}=2N$)
 	\end{itemize}
-\end{frame}
-
-\begin{frame}{Экспериментальное исследование. Сдвиг}
-	\begin{itemize}
-		\item Базовая реализация имеет линейную сложность, остальные -- постоянную.
-		\item Лучшую производительность показывает карта без блокировок, худшую базовая карта (для достаточно больших карт).
-	\end{itemize}
-	\centering
-	\includegraphics[width=\linewidth]{images/_Shift_it4.png}
-\end{frame}
-
-\begin{frame}{Экспериментальное исследование. Добавление фрагментов}
-	\begin{itemize}
-		\item Базовая и расшеренная реализации имеют линейную сложность, остальные -- постоянную (при фиксированном размере добавляемого фрагмента).
-		\item Лучшую производительность показывает карта c разделяемыми блокировками, худшую -- расширенная карта.
-	\end{itemize}
-	\centering
-	\begin{minipage}{0.49\linewidth}
-		\centering
-		\includegraphics[width=\linewidth]{images/ParallelPutPatch_1_it4}
-		\includegraphics[width=\linewidth]{images/ParallelPutPatch_9_it4}
-	\end{minipage}
-	\begin{minipage}{0.49\linewidth}
-		\centering
-		\includegraphics[width=\linewidth]{images/ParallelPutPatch_5_it4}
-		\includegraphics[width=\linewidth]{images/ParallelPutPatch_13_it4}
-	\end{minipage}
-\end{frame}
-
-\begin{frame}{Экспериментальное исследование. Получение карты}
-	\begin{itemize}
-		\item Все реализации имеют линейную сложность.
-		\item Лучшую производительность показывает карта без блокировок, худшую базовая реализация.
-	\end{itemize}
-	\centering
-	\includegraphics[width=\linewidth]{images/_GetMap_it4.png}
 \end{frame}
 
 \begin{frame}{Экспериментальное исследование. Стандартный цикл <<публикации>>}
@@ -550,7 +356,7 @@
 
 
 \begin{frame}{Расширение совокупности модификаций на двухмерный сценарий}
-	Предложено расширение на двухмерный сценарий совокупной модификации, показавшей наилучшую производительность для стандартного цикла публикации. 
+	\textbf{Предложено} расширение на двухмерный сценарий совокупной модификации, показавшей наилучшую производительность для стандартного цикла публикации. 
 	
 	\centering
 	\includegraphics[width=0.6\linewidth]{images/Lockfree2D}

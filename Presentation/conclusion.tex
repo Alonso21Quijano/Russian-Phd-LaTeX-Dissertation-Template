@@ -17,7 +17,7 @@
     \begin{enumerate}
     	\item №2025617212 Программное обеспечение <<Система восприятия N1 V3>>.
     	\item №2025669744 Программное обеспечение <<Способ построения карты проходимости в окрестности высокоавтоматизированного беспилотного грузового транспортного средства>>.
-        \item Патент (на рассмотрении) <<Способ построения карты проходимости в окрестности высокоавтоматизированного беспилотного грузового транспортного средства>>
+        \item Патент №2853062 <<Способ построения карты проходимости в окрестности высокоавтоматизированного беспилотного грузового транспортного средства>>
      \end{enumerate}
 \end{frame}
 \note{
@@ -45,7 +45,7 @@
     \begin{enumerate}
     \item \textbf{Chekanov M. O.} L-shape fitting algorithm for 3D object detection in bird’s-eye-view in an autonomous driving system // \textbf{ICMV 2023} / Yerevan, Armenia  -- Society of Photo-Optical Instrumentation Engineers -- April 2024. -- Т. 13072. -- С. 138-145. 
     \item \textbf{М. О. Чеканов} С. В. Кудряшова, О. С. Шипитько. Трехмерная детекция объек­тов на основе L- shape модели в автономных системах движения // \textbf{Сенсорные системы}. -- 2025. -- Т. 39, № 1. -- С. 66-78. -- DOI: 10.31857/S0235009225010078
-    \item (на рассмотрении) \textbf{М. О. Чеканов} Многопоточные неблокирующие алгоритмы построения карты проходимости пространства // \textbf{Информационные технологии и вычислительные системы}
+    \item \textbf{М. О. Чеканов} Многопоточные неблокирующие алгоритмы построения карты проходимости пространства // \textbf{Информационные технологии и вычислительные системы}
     \end{enumerate}
 \end{frame}
 
@@ -54,6 +54,7 @@
 		\frametitle{Апробация работы}
 		\begin{enumerate}
 			\item 16th International Conference on Machine Vision (ICMV 2023, Ереван, Армения),
+			\item 40th ECMS International Conference on Modelling and Simulation (ECMS 2026, Гримстад, Норвегия),
 		\end{enumerate}
 	\end{frame}
 \note{
@@ -74,6 +75,140 @@
 	\includegraphics[width=\linewidth]{Presentation/images/models}
 \end{frame}
 
+\begin{frame}[allowframebreaks, noframenumbering]
+	\frametitle{Алгоритм проекции визуальных детекций на плоскость
+		движения БТС на основе модели L-Shape}
+	\small
+	\textbf{Предложен} алгоритм оценки положения ТС на плоскость движения БТС на основе модели L-Shape. Алгоритм состоит из двух шагов: 
+	\begin{enumerate}
+		\item проекция нижней границы ТС на плоскость движения БТС,
+		\item вписывание полученной проекции в ориентированную ограничивающую рамку.
+	\end{enumerate}
+	
+	Для предлагаемого алгоритма делается дополнительное предположение:
+	\begin{enumerate}
+		\item на изображении видны не более двух смежных сторон ТС,
+		\item смежные стороны ТС ортогональны.
+	\end{enumerate}
+	
+	\framebreak
+	\begin{minipage}{0.5\linewidth}
+		\begin{enumerate}
+			\item Берем $N$ равномерно распределенных точек на нижней границе ограничивающей рамки.
+			\item Каждая полученная точка сдвигается к верху изображения пиксель за пикселем, пока она не выйдет за пределы проезжей.
+			\item Строится выпуклая оболочка полученных точек, которая затем проецируется (центральная проекция) на OXY: $\{p_0, \dots p_L\}, p_i=(x_i, y_i)$. 
+		\end{enumerate}
+	\end{minipage}
+	\begin{minipage}{0.49\linewidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/l-shape.png}
+	\end{minipage}
+	
+	\framebreak
+	Необходимо оценить параметры двух ортогональных прямых: 
+	$l: y = kx + d_1$ и $l': x = -ky+d_2$, таких что минимизируется среднеквадратичное отклонение вписываемых точек до соответствующей прямой.
+	
+	Согласно сделанным ранее предположениям:
+	\begin{align*}
+		\exists m \in \{1,\dots,N - 1\}\hookrightarrow& \forall i \in \{1,\dots,m\}, p_i = (x_i, y_i) \in l;\\
+		&\forall i \in \{m+1,\dots,N\},p_i = (x_i, y_i) \in l'
+	\end{align*}
+	
+	Для некоторого фиксированного $m$, задача минимизации выглядит следующим образом:
+	
+	\begin{equation*}
+		\operatorname*{argmin}_{k, d_1,d_2}\left(\begin{pmatrix}
+			x_1 & 1 & 0 \\
+			x_2 & 1 & 0 \\
+			\vdots & \vdots  & \vdots  \\
+			x_{m} & 1 & 0 \\
+			-y_{m + 1} & 0 & 1 \\
+			\vdots & \vdots  & \vdots  \\
+			-y_{N} & 0 & 1 \\
+		\end{pmatrix} 
+		\begin{pmatrix}
+			k \\
+			d_1\\
+			d_2 \\
+		\end{pmatrix} - \begin{pmatrix}
+			y_1 \\
+			y_2\\
+			\vdots \\
+			y_{m} \\
+			x_{m + 1} \\
+			\vdots \\
+			x_{N} \\
+		\end{pmatrix}\right)^2    
+	\end{equation*}
+	
+	Введя дополнительные обозначения, мы можем переписать это выражение следующим образом:
+	
+	\begin{equation*}
+		\operatorname*{argmin}_{a}\left(\begin{pmatrix}
+			\widehat{x} & 1 & 0 \\
+			-\widehat{y} & 0 & 1 \\
+		\end{pmatrix} 
+		a - \begin{pmatrix}
+			\widetilde{y} \\
+			\widetilde{x} \\
+		\end{pmatrix}\right)^2
+	\end{equation*}
+	
+	И далее:
+	
+	\begin{equation*}
+		\operatorname*{argmin}_{a}\left(Xa - y \right)^2
+	\end{equation*}
+	
+	Решением данной задачи минимизации является:
+	
+	\begin{align}
+		a^* &= \left(X^TX\right)^{-1}X^Ty \label{eq:optimal_lsh_sol}\\
+		\text{ESS} &= a^{*T}X^TXa - 2 a^{*T}X^Ty - y^Ty \label{eq:optimal_lsh_sol_mse}
+	\end{align}
+	
+	\framebreak
+	Итоговый алгоритм вписывания проекции в рамку имеет следующий вид:
+	
+	\begin{enumerate}
+		\item Перебираем все значения $m \in \{1,\dots,N-1\}$
+		\item Пересчитываем матрицы $X,y$
+		\item Находим $a^*$, MSE для каждой задачи минимизации по формулам~\ref{eq:optimal_lsh_sol},\ref{eq:optimal_lsh_sol_mse}
+		\item В качестве финального решения для $l, l'$ выбираем $a^*$ с наименьшим MSE.
+		\item Обрамляем вписываемый набор точек линиями параллельными $l$ и $l'$. Область ограниченная полученными линиями -- искомая ограничивающая рамка.
+	\end{enumerate}
+	
+	\textbf{В работе предложена реализация }алгоритма, имеющая вычислительную сложность $O(N)$, где $N$ -- число точек вписываемой проекции.
+\end{frame}
+
+\begin{frame}[noframenumbering]\frametitle{Алгоритм проекции сегментации проезжей части на изображении на плоскость движения БTC}
+	\begin{itemize}
+		\item \textbf{Предложен} алгоритм проекции проезжей части на изображении на плоскость движения БТС.
+		\item Искомые $z(x,y)$ происходит путём разбиения триангуляцией Делоне точек земли входного облака точек с последующей линейной интерполяцией $z$ внутри полученных треугольников\footnote{Reconstructed three-dimensional electron momentum density in lithium: A Compton scattering study [Текст] / Y. Tanaka [и др.] // Phys. Rev. B. — 2001}:
+		$$z=\dfrac{z_1S_1 + z_2S_2 + z_3S_3}{S_1+S_2+S_3}$$
+	\end{itemize}
+	
+	\centering 
+	\begin{minipage}{0.54\linewidth}
+		\includegraphics[width=\linewidth]{images/whydelaunay}
+	\end{minipage}
+	\begin{minipage}{0.45\linewidth}
+		\includegraphics[width=0.9\linewidth]{images/z_interpolation}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}[noframenumbering]\frametitle{Модификация алгоритма для обнаружения препятствий на проезжей части}
+	\begin{minipage}{0.56\linewidth}
+		\footnotesize
+		\begin{itemize}
+			\item Можно модифицировать предложенный алгоритм для обнаружения низких объектов, если сделать предположение, что <<вырезы>> в полученной проекции -- тени таких объектов.
+		\end{itemize}	
+	\end{minipage}
+	\begin{minipage}{0.43\linewidth}
+		\includegraphics[width=\textwidth]{images/true3dsegm_demo}
+	\end{minipage}
+\end{frame}
+
 \begin{frame}[noframenumbering]\frametitle{Алгоритм проекции сегментации проезжей части на изображении на плоскость движения БTC}
 	\footnotesize
 	\begin{itemize}
@@ -90,6 +225,20 @@
 	\begin{minipage}{0.49\textwidth}\centering
 		\includegraphics[width=\textwidth]{images/nsys_splitting_with_streams} \\ б) После модификации c использованием CUDA Streams
 	\end{minipage}
+\end{frame}
+
+\begin{frame}[noframenumbering]\frametitle{Метод картографирования с обратной моделью наблюдений}
+	
+	Элементы карты  $m_i$ хранят значения:
+	$$l_i = l(m_i|\textbf{x}_{1:i}, \textbf{z}_{1:S,1:k}) = \ln\left(\dfrac{p(m_i|\textbf{x}_{1:i}, \textbf{z}_{1:S,1:k})}{1 - p(m_i|\textbf{x}_{1:i}, \textbf{z}_{1:S,1:k})}\right),$$ 
+	где $p(m_i|\textbf{x}_{1:i}, \textbf{z}_{1:S,1:k})$ -- вероятность нахождения препятствия в пространстве, описываемом $m_i$.
+	
+	При таком формате хранимого, получая следующее измерение $\textbf{z}_{s, j}$, значение $m_i$ обновляется по формуле:
+	$$l_{i+1} = l_{i} + \underbrace{l(m_i|\textbf{x}_{i+1}, \textbf{z}_{s, j}) - l(m_i)}_{l_+},$$
+	где $l(m_i|\textbf{x}_{i+1}, \textbf{z}_{s, j})$ -- \textbf{обратная модель наблюдений}, $l(m_i)$ -- априорное значение $m_i$.
+	
+	Значение вероятности восстанавливается по формуле:
+	$$p(m_i|\textbf{x}_{1:i}, \textbf{z}_{1:S,1:k}) = \dfrac{\exp{l_i}}{1+\exp{l_i}}$$
 \end{frame}
 
 \begin{frame}[noframenumbering]\frametitle{Затухание карты проходимости пространства}
@@ -109,6 +258,17 @@
 	\end{minipage}
 \end{frame}
 
+\begin{frame}[noframenumbering]\frametitle{Принцип построения карты проходимости пространства}
+	\footnotesize
+	\begin{itemize}
+		\item По измерения каждого датчика в отдельном потоке выполнения строится фрагмент карты, хранящий значения $l_+$, которые необходимо добавить на итоговую карту проходимости пространства;
+		\item Фрагменты складываются в очередь;
+		\item В отдельном потоке выполнения фрагменты извлекаются из очереди и добавляются на карту.
+	\end{itemize}
+	
+	\includegraphics[width=\linewidth]{images/OMF_dataflow.png}	
+\end{frame}
+
 
 \begin{frame}[noframenumbering]\frametitle{Принцип построения карты проходимости пространства}
 	\footnotesize
@@ -124,4 +284,99 @@
 	\centering
 	\includegraphics[width=0.6\linewidth]{images/old_patch} \\
 	Время карты актуальнее времени регистрации фрагмента.
+\end{frame}
+
+\begin{frame}[noframenumbering]\frametitle{Модификации алгоритма построения карты проходимости пространства}
+	
+	\begin{itemize}
+		\item В работе \textbf{предложено} три последовательные модификации оригинальной реализации.
+		\item Для упрощения модификации реализованы для одномерного случая.
+		\item Модификации направлены на снижение вычислительной сложности применяемых к карте операций, а также добавления возможности одновременной модификации карты несколькими источниками без блокировок.
+		\item Применяемые к карте операции:
+		\begin{itemize}
+			\item Сдвиг
+			\item Добавление фрагмента
+			\item Получение карты проходимости пространства
+		\end{itemize}
+	\end{itemize}
+	
+	\centering
+	\includegraphics[width=0.6\linewidth]{images/BaseOMF}
+\end{frame}	
+
+\begin{frame}[noframenumbering]\frametitle{Расширенная карта проходимости пространства}
+	
+	\begin{itemize}
+		\item Сдвиг -- вычислительно дорогая операция для базовой реализации: $O(N)$ операций, где $N$ количество элементов карты.
+		\item Для снижения вычислительной сложности \textbf{предложено} увеличить размер массива, хранящего карту, до $\widehat{N} > N$.
+		\item В общем случае сдвиг требует только модификации координат положения отображаемого участка карты ($O(1)$ операций)
+		\item Сдвиг массива требуется только при достижении картой границы массива ($O(\widehat{N})$ операций)
+		\item Амортизационная вычислительная сложность операции $O(1)$.
+	\end{itemize}
+	
+	\centering
+	\includegraphics[width=\linewidth]{images/PrefetchedOMF}
+\end{frame}
+
+\begin{frame}[noframenumbering]\frametitle{Карта проходимости с разделяемыми блокировками}
+	
+	\begin{itemize}
+		\item Основным препятствием для одновременного добавления на карту нескольких фрагментов, является необходимость хранить все элементы карты приведёнными к единому моменту времени.
+		\item Чтобы обойти это препятствие \textbf{предложено} изменить формат элемента карты проходимости пространства, добавив к хранимому значению $l_i$ время  $t_i$, которое описывает элемент.
+		\item Все операции записи/чтения элемента выполняются атомарно. При добавлении фрагмента значение обновляется через сравнение с обменом (Compare and Swap, CAS)
+		\item Таким образом добавление фрагмента может быть выполнено одновременно с другими операциями добавления, если они не приводят к сдвигу массива (сдвиг остаётся блокирующей операцией).
+	\end{itemize}
+	
+	\centering
+	\includegraphics[width=0.6\linewidth]{atomic_cell}
+\end{frame}
+
+
+\begin{frame}[noframenumbering]\frametitle{Карта проходимости с обновлением без блокировок}
+	
+	\begin{itemize}
+		\item Для полного избавления от блокировок \textbf{предложено} разделить массив на два независимых участка. 
+		\item Участки описывают смежные области пространства.
+		\item При приближении к выходу за границы пространства хранимого в памяти, элементы участка на котором нет видимой части карты сбрасываются и начинают описывать область, куда движется видимая часть карты.
+	\end{itemize}
+	
+	\centering
+	\includegraphics[width=\linewidth]{images/FullyLockFreeOMFShift}
+\end{frame}
+
+
+\begin{frame}[noframenumbering]\frametitle{Экспериментальное исследование. Сдвиг}
+	\begin{itemize}
+		\item Базовая реализация имеет линейную сложность, остальные -- постоянную.
+		\item Лучшую производительность показывает карта без блокировок, худшую базовая карта (для достаточно больших карт).
+	\end{itemize}
+	\centering
+	\includegraphics[width=\linewidth]{images/_Shift_it4.png}
+\end{frame}
+
+\begin{frame}[noframenumbering]\frametitle{Экспериментальное исследование. Добавление фрагментов}
+	\begin{itemize}
+		\item Базовая и расшеренная реализации имеют линейную сложность, остальные -- постоянную (при фиксированном размере добавляемого фрагмента).
+		\item Лучшую производительность показывает карта c разделяемыми блокировками, худшую -- расширенная карта.
+	\end{itemize}
+	\centering
+	\begin{minipage}{0.49\linewidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/ParallelPutPatch_1_it4}
+		\includegraphics[width=\linewidth]{images/ParallelPutPatch_9_it4}
+	\end{minipage}
+	\begin{minipage}{0.49\linewidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/ParallelPutPatch_5_it4}
+		\includegraphics[width=\linewidth]{images/ParallelPutPatch_13_it4}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}[noframenumbering]\frametitle{Экспериментальное исследование. Получение карты}
+	\begin{itemize}
+		\item Все реализации имеют линейную сложность.
+		\item Лучшую производительность показывает карта без блокировок, худшую базовая реализация.
+	\end{itemize}
+	\centering
+	\includegraphics[width=\linewidth]{images/_GetMap_it4.png}
 \end{frame}
