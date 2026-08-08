@@ -176,10 +176,10 @@
 	\IncMargin{2em}
 	\begin{algorithm}[H]
 		\LinesNumbered
-		\KwIn{$S_I$ -- cемантическая сегментация; $\text{ppm}$ -- разрешение итоговой проекции[пикс/м]; $l$ -- ширина и высота проекции[м]}
+		\KwIn{$S_I$ -- cемантическая сегментация; $\text{res}$ -- разрешение итоговой проекции[пикс/м]; $l$ -- ширина и высота проекции[м]}
 		\KwOut{$S_{BEV}$ -- проекция сегментации проезжей части на плоскость движения}
-		$s \leftarrow \frac{1}{\text{ppm}}$ \;
-		$L \leftarrow l \cdot \text{ppm}$ \;
+		$s \leftarrow \frac{1}{\text{res}}$ \;
+		$L \leftarrow l \cdot \text{res}$ \;
 		$S_{BEV} \leftarrow $ матрица размера $L\times L$\;
 		\For{$i \leftarrow 0$ \KwTo $L$}{
 			\For{$j \leftarrow 0$ \KwTo $L$}{
