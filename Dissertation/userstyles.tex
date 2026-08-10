@@ -302,3 +302,16 @@
 \renewcommand{\chi}{\upchi}
 \renewcommand{\psi}{\uppsi}
 \renewcommand{\omega}{\upomega}
+
+%%% Размещение плавающих объектов
+% При значениях по умолчанию (textfraction=0.2, floatpagefraction=0.5) рисунок,
+% занимающий 0,6--0,7 страницы, не принимается ни на страницу с текстом, ни на
+% отдельную страницу плавающих объектов, и откладывается на несколько разворотов
+% вперёд, отрываясь от своего раздела.
+\setcounter{topnumber}{3}            % рисунков вверху страницы (было 2)
+\setcounter{bottomnumber}{2}         % рисунков внизу страницы (было 1)
+\setcounter{totalnumber}{4}          % всего рисунков на странице (было 3)
+\renewcommand{\textfraction}{0.1}    % минимальная доля текста на странице (было 0.2)
+\renewcommand{\topfraction}{0.85}    % максимальная доля страницы под рисунки сверху (было 0.7)
+\renewcommand{\bottomfraction}{0.6}  % то же снизу (было 0.3)
+\renewcommand{\floatpagefraction}{0.7} % заполненность страницы плавающих объектов (было 0.5)

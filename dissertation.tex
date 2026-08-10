@@ -86,6 +86,9 @@
 \renewcommand*{\afterchapternum}{\par\nobreak\vskip \midchapskip}
 \renewcommand\thechapter{\Asbuk{chapter}} % Чтобы приложения русскими буквами нумеровались
 
+% Приложения нумеруются в порядке первой ссылки на них в тексте (ГОСТ Р 7.0.11-2011, п. 9.3),
+% поэтому приложение с выкладками главы 2 идёт первым.
+\include{Dissertation/appendix_math}   % Приложение А: вывод решения задачи вписывания в L-Shape модель
 \include{Dissertation/appendix}        % Приложения
 
 \setcounter{totalappendix}{\value{chapter}} % Подсчёт количества приложений

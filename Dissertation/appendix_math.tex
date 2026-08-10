@@ -1,0 +1,86 @@
+\chapter{Вывод решения задачи вписывания в L-Shape модель}\label{app:math/lshape}
+
+В разделе~\cref{sec:ch2/sec1} задача вписывания набора точек $p_i = (x_i, y_i)$, $i \in \{1,\dots,N\}$, в ориентированную ограничивающую рамку сведена к поиску двух перпендикулярных прямых $l: y = kx + d_1$ и $l': x = -ky + d_2$, минимизирующих сумму квадратов отклонений вписываемых точек от соответствующей прямой. Согласно L-Shape модели, существует номер $m$, разделяющий точки между прямыми:
+
+\begin{align*}
+	\exists m \in \{1,\dots,N - 1\}\hookrightarrow& \forall i \in \{1,\dots,m\}, p_i = (x_i, y_i) \in l;\\
+	&\forall i \in \{m+1,\dots,N\},p_i = (x_i, y_i) \in l'
+\end{align*}
+
+При фиксированном $m$ задача минимизации записывается в виде:
+
+\begin{equation*}
+	\operatorname*{argmin}_{k, d_1,d_2}\left(\begin{pmatrix}
+		x_1 & 1 & 0 \\
+		x_2 & 1 & 0 \\
+		\vdots & \vdots  & \vdots  \\
+		x_{m} & 1 & 0 \\
+		-y_{m + 1} & 0 & 1 \\
+		\vdots & \vdots  & \vdots  \\
+		-y_{N} & 0 & 1 \\
+	\end{pmatrix}
+	\begin{pmatrix}
+		k \\
+		d_1\\
+		d_2 \\
+	\end{pmatrix} - \begin{pmatrix}
+		y_1 \\
+		y_2\\
+		\vdots \\
+		y_{m} \\
+		x_{m + 1} \\
+		\vdots \\
+		x_{N} \\
+	\end{pmatrix}\right)^2
+\end{equation*}
+
+Обозначим через $\widehat{x}$ и $\widetilde{y}$ столбцы координат точек, отнесённых к прямой $l$, а через $\widehat{y}$ и $\widetilde{x}$ -- столбцы координат точек, отнесённых к прямой $l'$. Тогда выражение переписывается как
+
+\begin{equation*}
+	\operatorname*{argmin}_{a}\left(\begin{pmatrix}
+		\widehat{x} & 1 & 0 \\
+		-\widehat{y} & 0 & 1 \\
+	\end{pmatrix}
+	a - \begin{pmatrix}
+		\widetilde{y} \\
+		\widetilde{x} \\
+	\end{pmatrix}\right)^2
+	= \operatorname*{argmin}_{a}\left(Xa - y \right)^2,
+\end{equation*}
+
+где $a = (k, d_1, d_2)^T$. Решение этой задачи и соответствующее ему значение суммы квадратов отклонений даются формулами~\cref{eq:optimal_lsh_sol} и~\cref{eq:optimal_lsh_sol_mse} основного текста.
+
+Покажем, что при переходе от $m$ к $m+1$ входящие в эти формулы матрицы пересчитываются за фиксированное, не зависящее от $N$, число операций. Для удобства чтения введём обозначение $\overline{m} = N - m$. Выпишем промежуточные матрицы в явном виде:
+
+\begin{align*}
+	X^TX &= \begin{pmatrix}
+		\sum{\widehat{x}^2} + \sum{\widehat{y}^2}& \sum\widehat{x} & -\sum\widehat{y} \\
+		\sum\widehat{x} & m & 0  \\
+		-\sum\widehat{y} & 0 & \overline{m}
+	\end{pmatrix}\\
+	\Delta_{X^TX} &= m \overline{m}(\sum{\widehat{x}^2} + \sum{\widehat{y}^2}) - m\left(\sum{\widehat{y}}\right)^2 - \overline{m} \left(\sum{\widehat{x}}\right)^2 \\
+	\left(X^TX\right)^{-1} &=  \frac{1}{\Delta_{X^TX}} \\ &\begin{pmatrix}
+		m \overline{m}& -\overline{m} \sum\widehat{x} & m \sum\widehat{y} \\
+		-\overline{m} \sum\widehat{x} & \overline{m} (\sum{\widehat{x}^2} + \sum{\widehat{y}^2}) - \left(\sum\widehat{y}\right)^2& -\sum\widehat{x} \sum\widehat{y} \\
+		m\sum\widehat{y} & -\sum\widehat{x} \sum\widehat{y} & m (\sum{\widehat{x}^2} + \sum{\widehat{y}^2}) - \left(\sum\widehat{x}\right)^2 \\
+	\end{pmatrix}\\
+	X^Ty  &= \begin{pmatrix}
+		\widehat{x}^T\widetilde{y} - \widehat{y}^T\widetilde{x} \\
+		\sum\widetilde{y} \\
+		\sum\widetilde{x} \\
+	\end{pmatrix}
+\end{align*}
+
+Все элементы этих матриц выражаются через семь величин: $\sum{\widehat{x}^2} + \sum{\widehat{y}^2}$, $\sum{\widehat{x}}$, $\sum{\widehat{y}}$, $\sum{\widetilde{x}}$, $\sum{\widetilde{y}}$, $\widehat{x}^T\widetilde{y}$, $\widehat{y}^T\widetilde{x}$, а также через $m$ и $\overline{m}$. Если вычислить их один раз для $m=1$ (за $\Theta(N)$ операций), то при <<перемещении>> очередной точки $(x,y)$ с прямой $l'$ на прямую $l$ перечисленные величины пересчитываются так:
+
+\begin{align*}
+	\sum{\widehat{x}^2} + \sum{\widehat{y}^2} &+= x^2 - y^2 \\
+	\sum{\widehat{x}} &+= x \\
+	\sum{\widehat{y}} &-= y \\
+	\sum{\widetilde{x}} &-= x\\
+	\sum{\widetilde{y}} &+= y \\
+	\widehat{x}^T\widetilde{y} &+= xy \\
+	\widehat{y}^T\widetilde{x} &-= xy \\
+\end{align*}
+
+Таким образом, каждый шаг перебора $m$ требует фиксированного числа операций, и итоговая временная сложность L-Shape алгоритма составляет $\Theta(N) + (N-1)\Theta(1) = \Theta(N)$ вместо $\Theta(N^2)$ у прямой реализации.
