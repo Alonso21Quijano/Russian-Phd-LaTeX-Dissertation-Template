@@ -83,3 +83,14 @@
         \setbeameroption{show notes on second screen=\presposition}
     }{}
 }
+
+% \centerfloat --- команда из класса memoir, используемого диссертацией.
+% В beamer она отсутствует, поэтому определяем её здесь, чтобы окружения
+% figure, перенесённые из текста диссертации, работали без изменений.
+\makeatletter
+\providecommand*{\centerfloat}{%
+    \parindent \z@
+    \leftskip \z@ \@plus 1fil \@minus \textwidth
+    \rightskip\leftskip
+    \parfillskip \z@skip}
+\makeatother

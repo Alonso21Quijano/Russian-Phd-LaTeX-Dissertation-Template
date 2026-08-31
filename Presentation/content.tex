@@ -1,7 +1,74 @@
-\begin{frame}{Оценка положения окружающих объектов по изображению с камеры}
-	\includegraphics[width=\linewidth]{images/blocked_trajectory.png}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Глава 1. Выбор модели и метрик
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[plain, noframenumbering]
+	\begin{center}
+		\Huge
+		Выбор модели\\ и метрик её оценки
+	\end{center}
 \end{frame}
 
+\begin{frame}{Карта проходимости пространства}
+	\footnotesize
+	В качестве базовой модели выбрана \textbf{карта проходимости пространства}: пространство разбивается на двумерную сетку $M$, каждой клетке $m_i$ которой сопоставляется вероятность нахождения препятствия $p(m_i)$.
+
+	\begin{minipage}{0.6\linewidth}
+		Основания выбора:
+		\begin{itemize}
+			\item описывает объекты произвольной геометрии, не требуя их классификации;
+			\item явно представляет области, о проходимости которых нет информации;
+			\item байесовское обновление сводит учёт данных источника к сложению независимо вычисляемых слагаемых $\Rightarrow$ \textbf{принципиально допускает одновременное обновление несколькими источниками}.
+		\end{itemize}
+	\end{minipage}
+	\begin{minipage}{0.39\linewidth}
+		\includegraphics[width=\linewidth]{Presentation/images/map_cells}
+	\end{minipage}
+
+	$$l_{t,i} = l_{t-1,i} + \underbrace{\ln\dfrac{p(m_i|z_t, x_t)}{1 - p(m_i|z_t, x_t)}}_{\text{обратная модель наблюдения}} - \; l_{0,i}$$
+\end{frame}
+
+\begin{frame}{Метрики оценки качества карты проходимости пространства}
+	\footnotesize
+	Поэлементные метрики (СКО, коэффициент Жаккара) штрафуют ошибку одинаково независимо от того, где на карте она допущена. Для задачи планирования маршрута это не показательно:
+
+	\begin{figure}
+		\centerfloat{
+			\hfill
+			\subcaptionbox{\fontsize{6}{7}\selectfont Эталонная карта.}{
+				\includegraphics[width=0.26\linewidth]{images/bad_metrics_gt.png}}
+			\hfill
+			\subcaptionbox{\fontsize{6}{7}\selectfont Препятствие дальше эталонного положения.}{%
+				\includegraphics[width=0.26\linewidth]{images/bad_metrics_far.png}}
+			\hfill
+			\subcaptionbox{\fontsize{6}{7}\selectfont Препятствие ближе эталонного положения.}{%
+				\includegraphics[width=0.26\linewidth]{images/bad_metrics_close.png}}
+			\hfill
+		}
+	\end{figure}
+
+	Карты б) и в) равны по поэлементным метрикам, но карта б) \textbf{опаснее}. Поэтому основной метрикой выбрана \textbf{PFC-MSE}\footnote{\fontsize{6}{7}\selectfont Horel J.-B. et al. Navigation Oriented Evaluation of Occupancy Grids. --- 2023.}: сравниваются стоимости кратчайших путей от БТС до каждой клетки:
+
+	$$\text{PFC-MSE}(GT, I) = \dfrac{\sum_c w_c||GT_{cost}(c) - I_{cost}(c)||_2}{\sum_c w_c},\quad w_c = p(c = free)$$
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Глава 2. Алгоритмы проецирования визуальных данных
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[plain, noframenumbering]
+	\begin{center}
+		\Huge
+		Алгоритмы проецирования\\ визуальных данных\\ на плоскость движения БТС
+	\end{center}
+\end{frame}
+
+\begin{frame}{Оценка положения окружающих объектов по изображению с камеры}
+	\includegraphics[width=\linewidth]{images/blocked_trajectory.png}
+
+	\centering
+	\footnotesize Неверная проекция грузовика: зона слева от него воспринимается как часть объекта и мешает объехать его.
+\end{frame}
 
 \begin{frame}{Задача проекции визуальных детекций на плоскость движения БТС}
 	\begin{minipage}{0.6\linewidth}
@@ -13,7 +80,7 @@
 		\item внутреннюю и внешнюю калибровки камеры,
 	\end{itemize}
 	\textbf{необходимо оценить} положение окружающих ТС в виде ориентированных ограничивающих рамок на плоскости $OXY$: $\{b_0,\dots, b_n\}, b_i=\left(x_{c,i}, y_{c,i}, \theta_i, w_i, h_i\right)\in\mathbb{R}^2 \times \left[-\pi, \pi\right) \times \mathbb{R}^2$, где $x_{c,i}, y_{c,i}$ -- положение центра рамки на плоскости $OXY$, $\theta_i$ -- угол поворота рамки, $w_i, h_i$ -- ширина и длина рамки.
-	
+
 	Для решения задачи делаются следующие предположения:
 	\begin{itemize}
 		\item все ТС находятся на проезжей части;
@@ -25,12 +92,13 @@
 	\end{minipage}
 \end{frame}
 
-\begin{frame}
+\begin{frame}{Алгоритм на основе модели L-Shape. Этап 1: проекция}
     \begin{minipage}{0.5\linewidth}
+    	\footnotesize
     	\begin{enumerate}
-    		\item Берем $N$ равномерно распределенных точек на нижней границе ограничивающей рамки.
-    		\item Каждая полученная точка сдвигается к верху изображения пиксель за пикселем, пока она не выйдет за пределы проезжей.
-    		\item Строится выпуклая оболочка полученных точек, которая затем проецируется (центральная проекция) на OXY: $\{p_0, \dots p_L\}, p_i=(x_i, y_i)$. 
+    		\item Берём $N$ равномерно распределённых точек на нижней границе ограничивающей рамки.
+    		\item Каждая точка сдвигается к верху изображения пиксель за пикселем, пока не выйдет за пределы проезжей части.
+    		\item Строится выпуклая оболочка полученных точек, которая затем проецируется (центральная проекция) на $OXY$: $\{p_0, \dots p_L\}, p_i=(x_i, y_i)$.
     	\end{enumerate}
     \end{minipage}
     \begin{minipage}{0.49\linewidth}
@@ -39,46 +107,90 @@
 	\end{minipage}
 \end{frame}
 
+\begin{frame}{Алгоритм на основе модели L-Shape. Этап 2: вписывание в рамку}
+	\footnotesize
+	\textbf{Дополнительные предположения:} на изображении видны не более двух смежных сторон ТС; смежные стороны ТС ортогональны.
+
+	Оцениваются параметры двух ортогональных прямых $l: y = kx + d_1$ и $l': x = -ky+d_2$, минимизирующие среднеквадратичное отклонение вписываемых точек:
+
+	$$\operatorname*{argmin}_{a}\left(Xa - y \right)^2 \Rightarrow a^* = \left(X^TX\right)^{-1}X^Ty,\quad \text{ESS} = a^{*T}X^TXa - 2 a^{*T}X^Ty - y^Ty$$
+
+	\begin{itemize}
+		\item Перебираются все точки разделения $m \in \{1,\dots,N-1\}$ множества вписываемых точек между $l$ и $l'$;
+		\item в качестве решения выбирается $a^*$ с наименьшей ESS;
+		\item \textbf{предложена реализация} с вычислительной сложностью $O(N)$ за счёт инкрементального пересчёта $X^TX$ и $X^Ty$.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Экспериментальное исследование. Набор данных}
+	\footnotesize
+	\begin{itemize}
+		\item Данные, полученные с БТС: $4$ локации, $12$ последовательностей, $93$ кадра, разные сезоны и время суток.
+		\item Каждый кадр: RGB-изображение + облака точек двух $32$-лучевых лидаров с вручную аннотированными объектами.
+		\item Эталон --- проекции аннотированных параллелепипедов на вид сверху; сопоставление венгерским алгоритмом по коэффициенту Жаккара.
+	\end{itemize}
+
+	\centering
+	\includegraphics[width=0.58\linewidth]{images/scenes.png}
+	\includegraphics[width=0.40\linewidth]{images/l-shape-exp-demos.png}
+\end{frame}
+
 \begin{frame}[allowframebreaks]
 	\frametitle{Экспериментальное исследование. Результаты}
-		\begin{table}[h!]
+		\begin{table}
 			\footnotesize
 			\centering
-			\begin{tabular}{|p{0.1\textwidth}|p{0.11\textwidth}|p{0.1\textwidth}|p{0.11\textwidth}|p{0.11\textwidth}|p{0.12\textwidth}|p{0.11\textwidth}|}
+			\begin{tabular}{|p{0.16\textwidth}|p{0.09\textwidth}|p{0.09\textwidth}|p{0.09\textwidth}|p{0.09\textwidth}|p{0.1\textwidth}|p{0.09\textwidth}|}
 				\hline
-				           & \textbf{Мин. площадь} & \textbf{Rotating PCA} & \textbf{Diagonal PCA} & \textbf{Longest Diagonal} & \textbf{Rotated Triangle} & \textbf{L-Shape}\\
+				\textbf{Характе\-ристика} & \textbf{Мин. площадь} & \textbf{Rotating PCA} & \textbf{Diagonal PCA} & \textbf{Longest Diagonal} & \textbf{Rotated Triangle} & \textbf{L-Shape}\\
 				\hline
-				Среднее & $0.294\newline(-12.8\%)$ & $0.328\newline(-2.7\%)$ & $0.321\newline(-4.7\%)$ & $0.323\newline(-4.2\%)$ & $0.301\newline(-10.7\%)$ & \boldmath$0.337\newline(-0.0\%)$ \\
+				Среднее & $0,294$ & $0,328$ & $0,321$ & $0,323$ & $0,301$ & \boldmath$0,337$ \\
 				\hline
-		    	 $\sigma$ & $0.146$ & $0.144$ & $0.149$ & $0.156$ & $0.141$ & $0.141$ \\
+				\tiny СКО & $0,146$ & $0,144$ & $0,149$ & $0,156$ & $0,141$ & $0,141$ \\
 				\hline
-				Мин. & $0.059\newline(-24.4\%)$  & $0.075\newline(-3.8\%)$ & \boldmath$0.078\newline(-0.0\%)$ & $0.074\newline(-5.1\%)$ & $0.059\newline(-24.4\%)$ & \boldmath$0.078\newline(-0.0\%)$\\
+				Минимум & $0,059$  & $0,075$ & \boldmath$0,078$ & $0,074$ & $0,059$ & \boldmath$0,078$\\
 				\hline
-				$25\%$ & $0.198\newline(-13.9\%)$ & $0.219\newline(-4.8\%)$ & $0.202\newline(-12.2\%)$ &$0.199\newline(-13.5\%)$ & $0.208\newline(-9.6\%)$ & \boldmath$0.230\newline(-0.0\%)$ \\
+				$25$~\% & $0,198$ & $0,219$ & $0,202$ &$0,199$ & $0,208$ & \boldmath$0,230$ \\
 				\hline
-				$50\%$ & $0.257\newline(-21.6\%)$ & $0.316\newline(-3.7\%)$ & $0.316\newline(-3.7\%)$ & $0.287\newline(-12.5\%)$ & $0.264\newline(-19.5\%)$ & \boldmath$0.328\newline(-0.0\%)$ \\
+				$50$~\% & $0,257$ & $0,316$ & $0,316$ & $0,287$ & $0,264$ & \boldmath$0,328$ \\
 				\hline
-				$75\%$ & $0.383\newline(-15.1\%)$ & $0.448\newline(-0.7\%)$ & $0.445\newline(-1.3\%)$ & $0.442\newline(-2.0\%)$ & $0.425\newline(-5.8\%)$ & \boldmath$0.451\newline(-0.0\%)$ \\	
+				$75$~\% & $0,383$ & $0,448$ & $0,445$ & $0,442$ & $0,425$ & \boldmath$0,451$ \\
 				\hline
-				Макc. & $0.649\newline(-9.0\%)$ & $0.607\newline(-14.9\%)$ & $0.622\newline(-12.8\%)$ & $0.651\newline(-8.7\%)$ & $0.579\newline(-18.8\%)$ & \boldmath$0.713\newline(-0.0\%)$ \\
+				Максимум & $0,649$ & $0,607$ & $0,622$ & $0,651$ & $0,579$ & \boldmath$0,713$ \\
 				\hline
 			\end{tabular}
-			\caption{Статистики полученных коэффициентов Жаккара для сравниваемых алгоритмов}
+			\caption{\fontsize{6}{7}\selectfont Статистики полученных коэффициентов Жаккара для сравниваемых алгоритмов. Наилучшие значения выделены полужирным.}
 		\end{table}
-		
+
 	\framebreak
 	\begin{minipage}{0.4\linewidth}
+		\footnotesize
 		\begin{itemize}
-			\item На тестовом наборе данных \textbf{показано}, что предлагаемый алгоритм превосходит аналоги: ближайший алгоритм имеет усреднённый коэффициент Жаккара на $2.7\%$ ниже.
-			\item \textbf{Показано}, что качество всех алгоритмов начинает снижаться после при оценке положения ТС, расположенных далее $10$ метров.
+			\item \textbf{Показано}, что предлагаемый алгоритм превосходит аналоги: ближайший алгоритм имеет средний коэффициент Жаккара на $2,7$~\% ниже.
+			\item \textbf{Показано}, что качество всех алгоритмов начинает снижаться при оценке положения ТС, расположенных далее $10$~метров.
 		\end{itemize}
-	\end{minipage}	
+	\end{minipage}
 	\begin{minipage}{0.59\linewidth}
 		\includegraphics[width=\linewidth]{images/l-shape_metrics}
 	\end{minipage}
 \end{frame}
 
-\begin{frame}{Задача проекции визуальных детекций на плоскость движения БТС на основе комплексирования данных камеры и лидаров}
+\begin{frame}{Ограничение: предположение о плоскости проезжей части}
+	\footnotesize
+	\begin{minipage}{0.55\linewidth}
+		\begin{itemize}
+			\item Предположение нарушается как из-за рельефа местности, так и в силу требований к конструкции дорожного покрытия: согласно СП~34.13330.2012 покрытие имеет двускатный поперечный профиль на прямых участках и односкатный на виражах.
+			\item Дополнительный источник погрешности --- отклонение фактической внешней калибровки от измеренной (загрузка БТС, работа подвески, смещение датчиков).
+			\item Ошибка проецирования \textbf{растёт с удалением} от камеры.
+		\end{itemize}
+	\end{minipage}
+	\begin{minipage}{0.43\linewidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/road_profile.jpg}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}{Задача проекции визуальных детекций на основе комплексирования данных камеры и лидаров}
 \begin{minipage}{0.5\linewidth}
 	\fontsize{7}{8}\selectfont
 	\textbf{Имея:}
@@ -88,75 +200,138 @@
 		\item \textbf{облако точек, полученного с лидаров БТС} $P: \{p_i, \dots, p_N\}, p_i\in\mathbb{R}^3 $
 	\end{itemize}
 	\textbf{необходимо оценить} положение окружающих ТС в виде ориентированных ограничивающих рамок на плоскости $OXY$: $\{b_0,\dots, b_n\}, b_i=\left(x_{c,i}, y_{c,i}, \theta_i, w_i, h_i\right)\in\mathbb{R}^2 \times \left[-\pi, \pi\right) \times \mathbb{R}^2$.
-	
+
 	В рамках данной задачи \textbf{делается предположение}, что координата $z$ точек земли в лидарном облаке является реализацией некоторого гауссовского процесса.
 \end{minipage}
 \begin{minipage}{0.49\linewidth}
 	\includegraphics[width=\linewidth]{projection_with_lidars_task}
-\end{minipage}		
+\end{minipage}
 \end{frame}
 
-\begin{frame}{Алгоритм проекции визуальных детекций на плоскость движения БТС на основе комплексирования данных камеры и лидаров}
+\begin{frame}{Разделение облака точек на точки земли и препятствий}
+	\fontsize{7}{8.5}\selectfont
+	\begin{minipage}{0.53\linewidth}
+		\begin{itemize}
+			\item Поиск плоскости методом RANSAC возвращает к отвергаемому предположению о плоскости, поэтому высота земли восстанавливается \textbf{регрессией на основе гауссовских процессов}.
+			\item Ядро Матерна ($\nu = 3/2$) --- лучше аппроксимирует разрывы (стыки проезжей части и тротуаров):
+			$$k(\mathbf{x}, \mathbf{x}') = \sigma_f^2 \left(1 + \frac{\sqrt{3} d}{l}\right) \exp\left(-\frac{\sqrt{3} d}{l}\right)$$
+			\item Регрессия требует $O(N_t^3)$ операций, поэтому обучающая выборка формируется из усреднённых по вокселям координат (несколько сотен точек).
+			\item Порог отнесения точки к земле зависит от расстояния до БТС: $z_{thr} = f(||(x_l, y_l)||_2)$.
+		\end{itemize}
+	\end{minipage}
+	\begin{minipage}{0.46\linewidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/splitting_demo_pc}\\
+		\includegraphics[width=\linewidth]{images/splitting_demo_img}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}{Алгоритм проекции визуальных детекций на основе комплексирования данных камеры и лидаров}
     \fontsize{7}{8}\selectfont
 	\IncMargin{2em}
 	\begin{algorithm}[H]
 		\LinesNumbered
-		\KwIn{$\{d_1,\dots d_n\}$ -- визуальные детекции, $P$ -- облако точек.}
+		\KwIn{$I$ -- изображение с RGB-камеры, $P$ -- облако точек.}
 		\KwOut{$b_i$ -- ориентированные ограничивающие рамки на виде сверху окружающих БТС объектов.}
+		Произвести поиск двумерных детекций объектов на $I$: $\{d_1,\dots d_n\}$\;
 		Выделить в облаке точек $P$ точки, не принадлежащие поверхности земли: $P_o$\;
-		Кластеризовать полученное облако точек $P_o$;
-		Спроецировать все кластеры на изображение $I$: $C_i \rightarrow \widehat{C}_i$.\;
+		Кластеризовать полученное облако точек $P_o$ с расстоянием Евклида\;
+		Спроецировать все кластеры на изображение $I$: $C_i \rightarrow \widehat{C}_i$\;
 		Для каждого спроецированного кластера найти ограничивающую рамку минимального размера: $d_{C_i}$\;
-		Используя Венгерский алгоритм найти наилучшее сопоставление $d_i$ с  $d_{C_i}$\;
-		В оставшихся кластерах удалить точки, не попадающие при проекции в сопоставленную детекцию $d_i$: $C_i \rightarrow C^-_i$.\;
+		Используя венгерский алгоритм найти наилучшее сопоставление $d_i$ с $d_{C_i}$\;
+		В оставшихся кластерах удалить точки, не попадающие при проекции в сопоставленную детекцию $d_i$: $C_i \rightarrow C^-_i$\;
 		\ForEach{$C^-_i$}{
-			Используя RANSAC(RANdom SAmple Consensus) найти прямую $l_i$ в $C^-_i$.\;
-			Построить ограничивающую рамку $b_i$, со сторонами параллельными $l_i$ и ортогональной ей $l'_i$.\;
+			Используя RANSAC (RANdom SAmple Consensus) найти прямую $l_i$ в $C^-_i$\;
+			Построить ограничивающую рамку $b_i$, со сторонами параллельными $l_i$ и ортогональной ей $l'_i$\;
 		}
 		\Return{$\{b_i\}$}
 	\end{algorithm}
 \end{frame}
 
+\begin{frame}{Демонстрация работы алгоритма}
+	\centering
+	\includegraphics[width=0.68\linewidth]{images/true3ddet_demo}
+
+	\fontsize{6}{7}\selectfont
+	Сверху: двумерные детекции на изображении с камеры БТС. Снизу: красные точки --- точки препятствий из лидарного облака, чёрные прямоугольники --- полученные алгоритмом детекции.
+\end{frame}
+
 \begin{frame}[allowframebreaks]
 	\frametitle{Экспериментальное исследование. Результаты}
-	\begin{table}[h!]
+	\begin{table}
+		\footnotesize
 		\centering
-		\caption{Статистики полученных коэффициентов Жаккара для сравниваемых алгоритмов}
-		\label{tab:stats_t3dd}
-		\begin{tabular}{|c|c|c|c|c|c|c|}
+		\begin{tabular}{|p{0.16\textwidth}|p{0.09\textwidth}|p{0.09\textwidth}|p{0.09\textwidth}|p{0.09\textwidth}|p{0.1\textwidth}|p{0.09\textwidth}|}
 			\hline
-			%\backslashbox{Statistic}{Method}
-			&           \rotatebox{60}{RPCA}  &      \rotatebox{60}{DPCA}      &    \rotatebox{60}{LD}  &        \rotatebox{60}{RT}   &     \rotatebox{60}{Ours}   &  \rotatebox{60}{L-shape} \\ \hline
-			Modality& LiDAR& LiDAR&LiDAR&LiDAR&\parbox{0.6cm}{\centering \tiny LiDAR+\\ Camera\\} &Camera\\ \hline
-			Mean&               0.396&       0.399&       0.335&       0.339&       \textbf{0.439}&       0.329\\ \hline
-			Std&                0.222&       0.222&       0.188&       0.215&       0.256&       0.147\\ \hline
-			Min&                0.008&       0.007&       0.004&       0.009&       0.004&       \textbf{0.078}\\ \hline
-			25\%&                0.212&       0.209&       0.187&       0.175&       \textbf{0.219}&       0.217\\ \hline
-			50\%&                0.400&       0.399&       0.331&       0.330&       \textbf{0.423}&       0.311\\ \hline
-			75\%&                0.562&       0.566&       0.457&       0.439&       \textbf{0.652}&       0.457\\ \hline 
-			Max&                0.872&       0.871&       0.734&       0.915&       \textbf{0.925}&       0.736\\ \hline
+			\textbf{Характе\-ристика} & \textbf{Rotating PCA} & \textbf{Diagonal PCA} & \textbf{Longest Diagonal} & \textbf{Rotated Triangle} & \textbf{Предло\-женный} & \textbf{L-Shape}\\
+			\hline
+			\tiny Используемые данные & \tiny лидар & \tiny лидар & \tiny лидар & \tiny лидар & \tiny лидар\newline и камера & \tiny камера \\
+			\hline
+			Среднее & $0,396$ & $0,399$ & $0,335$ & $0,339$ & \boldmath$0,439$ & $0,337$ \\
+			\hline
+			\tiny СКО & $0,222$ & $0,222$ & $0,188$ & $0,215$ & $0,256$ & \boldmath$0,141$ \\
+			\hline
+			Минимум & $0,008$ & $0,007$ & $0,004$ & $0,009$ & $0,004$ & \boldmath$0,078$ \\
+			\hline
+			$25$~\% & $0,212$ & $0,209$ & $0,187$ & $0,175$ & $0,219$ & \boldmath$0,230$ \\
+			\hline
+			$50$~\% & $0,400$ & $0,399$ & $0,331$ & $0,330$ & \boldmath$0,423$ & $0,328$ \\
+			\hline
+			$75$~\% & $0,562$ & $0,566$ & $0,457$ & $0,439$ & \boldmath$0,652$ & $0,451$ \\
+			\hline
+			Максимум & $0,872$ & $0,871$ & $0,734$ & $0,915$ & \boldmath$0,925$ & $0,713$ \\
+			\hline
 		\end{tabular}
+		\caption{\fontsize{6}{7}\selectfont Статистики полученных коэффициентов Жаккара. Наилучшие значения выделены полужирным.}
 	\end{table}
-	
+
 	\framebreak
-	\includegraphics[width=\linewidth]{images/true3ddet_dist_plot}
+	\begin{minipage}{0.4\linewidth}
+		\footnotesize
+		\begin{itemize}
+			\item Средний коэффициент Жаккара $0,439$ против $0,337$ у L-Shape --- рост на \textbf{$30,3$~\%}; лучший лидарный алгоритм превзойдён на $10$~\%.
+			\item По минимуму и нижнему квартилю алгоритм уступает L-Shape: для удалённых и заслонённых объектов кластер вырождается в несколько точек.
+			\item Предельная дальность: $62,36$~м против $28,24$~м у визуального алгоритма ($\approx +120$~\%).
+		\end{itemize}
+	\end{minipage}
+	\begin{minipage}{0.59\linewidth}
+		\includegraphics[width=\linewidth]{images/true3ddet_dist_plot}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}{Вычислительная эффективность}
+	\footnotesize
+	\begin{minipage}{0.48\linewidth}
+		Реализация на C++ в виде ROS-узла, интегрирована в систему управления БТС. Измерения на платформе AMD Ryzen~5 5600X, ОЗУ 32~ГБ, ГПУ Nvidia GeForce RTX~3070:
+		\begin{itemize}
+			\item среднее время обработки кадра --- \textbf{$66,7$~мс} при допустимых $100$~мс ($10$~Гц);
+			\item память: $178,8$~МБ ОЗУ и $156$~МБ памяти ГПУ.
+		\end{itemize}
+		Основную долю занимают шаги~4 и~5 --- двукратное проецирование точек кластеров на изображение с коррекцией дисторсии на ЦПУ; это оставляет запас для оптимизации.
+	\end{minipage}
+	\hfill
+	\begin{minipage}{0.5\linewidth}
+		\centering
+		\includegraphics[width=\linewidth]{images/True3DPerf.png}
+	\end{minipage}
 \end{frame}
 
 \begin{frame}{Важность учёта слепых зон при планировании движения}
-	Игнорирование слепых зон БТС при планировании маршрута может приводить поздней реакции на препятствия выходящие из них, а в худшем случае и к ДТП.
-	
+	\footnotesize
+	Игнорирование слепых зон БТС при планировании маршрута может приводить к поздней реакции на выходящие из них препятствия, а в худшем случае --- к ДТП.
+
 	\centering
 	\begin{minipage}[b][][b]{0.49\linewidth}\centering
-		\includegraphics[width=\linewidth]{images/occlusion_a} 
+		\includegraphics[width=\linewidth]{images/occlusion_a}
 	\end{minipage}
 	\begin{minipage}[b][][b]{0.49\linewidth}\centering
 		\includegraphics[width=\linewidth]{images/occlusion_b}
 	\end{minipage}
 \end{frame}
 
-\begin{frame}{Задача проекции сегментации проезжей части на
-		изображении на плоскость движения TC}
+\begin{frame}{Задача проекции сегментации проезжей части на изображении на плоскость движения БТС}
 	\begin{minipage}{0.5\linewidth}
+		\footnotesize
 		\textbf{Имея:}
 		\begin{itemize}
 			\item семантическую сегментацию проезжей части на изображении с камеры БТС $S: \left[0\dots H-1\right]\times\left[0\dots W-1\right] \rightarrow \{0,1\}$,
@@ -170,13 +345,13 @@
 	\end{minipage}
 \end{frame}
 
-\begin{frame}{Метод проекции сегментации проезжей части на изображении на плоскость движения БTC}
+\begin{frame}{Алгоритм проекции сегментации проезжей части на плоскость движения БТС}
 	\begin{minipage}{0.6\linewidth}
 	\fontsize{6}{7}\selectfont
 	\IncMargin{2em}
 	\begin{algorithm}[H]
 		\LinesNumbered
-		\KwIn{$S_I$ -- cемантическая сегментация; $\text{res}$ -- разрешение итоговой проекции[пикс/м]; $l$ -- ширина и высота проекции[м]}
+		\KwIn{$S_I$ -- семантическая сегментация; $\text{res}$ -- разрешение итоговой проекции [элементов/м]; $l$ -- ширина и высота проекции [м]; $z(x,y)$ -- высота поверхности движения}
 		\KwOut{$S_{BEV}$ -- проекция сегментации проезжей части на плоскость движения}
 		$s \leftarrow \frac{1}{\text{res}}$ \;
 		$L \leftarrow l \cdot \text{res}$ \;
@@ -186,10 +361,10 @@
 				$x \leftarrow -\dfrac{l}{2} + js$\;
 				$y \leftarrow -\dfrac{l}{2} + is$\;
 				$(u;v) \leftarrow$ проекция $(x,y, \underline{\textbf{z(x,y)}})$ на изображение\;
-				\eIf{$(u,v)$ попадает на изображение И $S_I[u][v] ==$ <<проезжая часть>>}{
-					$S_{BEV}[u][v] \leftarrow$ <<cвободно>>\;
+				\eIf{$(u,v)$ попадает на изображение И $S_I[u][v] ==$ <<свободно>>}{
+					$S_{BEV}[i][j] \leftarrow$ <<свободно>>\;
 				}{
-					$S_{BEV}[u][v] \leftarrow$ <<неизвестно>>\;
+					$S_{BEV}[i][j] \leftarrow$ <<неизвестно>>\;
 				}
 			}
 		}
@@ -201,57 +376,146 @@
 	\end{minipage}
 \end{frame}
 
-\begin{frame}[allowframebreaks]
-	\frametitle{Экспериментальное исследование. Результаты}
-\begin{table}[]
-	\caption{Метрики качества генерируемой карты проходимости пространства}
-	\label{tab:stats_t3ds}
-	\begin{tabular}{|cccc|}
-		\hline
-		\multicolumn{4}{|c|}{MSE}                                                                                                                                                                                               \\ \hline
-		\multicolumn{1}{|c|}{}        & \multicolumn{1}{c|}{Число кадров} & \multicolumn{1}{c|}{Базовый метод} & \begin{tabular}[c]{@{}c@{}}Базовый метод + учёт \\ проекции на карту \\ проходимости пространства\end{tabular} \\ \hline
-		\multicolumn{1}{|c|}{Сцена 1} & \multicolumn{1}{c|}{91}           & \multicolumn{1}{c|}{0.319}         & \textbf{0.299 (-6.4\%)}                                                                                        \\ \hline
-		\multicolumn{1}{|c|}{Сцена 2} & \multicolumn{1}{c|}{90}           & \multicolumn{1}{c|}{0.243}         & \textbf{0.231 (-5.2\%)}                                                                                        \\ \hline
-		\multicolumn{1}{|c|}{Сцена 3} & \multicolumn{1}{c|}{93}           & \multicolumn{1}{c|}{0.251}         & \textbf{0.242 (-3.6\%)}                                                                                        \\ \hline
-		\multicolumn{1}{|c|}{Сцена 4} & \multicolumn{1}{c|}{48}           & \multicolumn{1}{c|}{0.378}         & \textbf{0.348 (-7.8\%)}                                                                                        \\ \hline
-		\multicolumn{1}{|c|}{Сцена 5} & \multicolumn{1}{c|}{87}           & \multicolumn{1}{c|}{0.197}         & \textbf{0.195 (-1.3\%)}                                                                                        \\ \hline
-		\multicolumn{1}{|c|}{Итого}   & \multicolumn{1}{c|}{409}          & \multicolumn{1}{c|}{0.268}         & \textbf{0.255 (-5\%)}                                                                                          \\ \hline
-	\end{tabular}
-\end{table}
+\begin{frame}{Оценка $z(x,y)$: параллельная регрессия на ГПУ}
+	\footnotesize
+	\begin{itemize}
+		\item Центры элементов сетки добавляются в тестовую выборку регрессии гауссовского процесса алгоритма разделения облака точек.
+		\item \textbf{Переработан} этап выделения точек земли: исправлена конфигурация запуска ядер CUDA, две задачи регрессии решаются одновременно с использованием механизма CUDA Streams с переиспользованием матрицы $K$.
+		\item Время работы изменившегося этапа \textbf{снизилось} с $1,5$~мс до $0,97$~мс ($-35$~\%).
+	\end{itemize}
 
-\begin{table}[]	
-	\begin{tabular}{|cccc|}
-		\hline
-		\multicolumn{4}{|c|}{PFC-MSE}                                                                                                                                                                                          \\ \hline
-		\multicolumn{1}{|c|}{}        & \multicolumn{1}{c|}{Число кадров} & \multicolumn{1}{c|}{Базовый метод} & \begin{tabular}[c]{@{}c@{}}Базовый метод + учёт\\ проекции на карту \\ проходимости пространства\end{tabular} \\ \hline
-		\multicolumn{1}{|c|}{Сцена 1} & \multicolumn{1}{c|}{91}           & \multicolumn{1}{c|}{1538.0}        & \textbf{1408.7 (-8.4\%)}                                                                                      \\ \hline
-		\multicolumn{1}{|c|}{Сцена 2} & \multicolumn{1}{c|}{90}           & \multicolumn{1}{c|}{1379.8}        & \textbf{1239.3 (-10.2\%)}                                                                                     \\ \hline
-		\multicolumn{1}{|c|}{Сцена 3} & \multicolumn{1}{c|}{93}           & \multicolumn{1}{c|}{1344.7}        & \textbf{1173.4 (-12.7\%)}                                                                                     \\ \hline
-		\multicolumn{1}{|c|}{Сцена 4} & \multicolumn{1}{c|}{48}           & \multicolumn{1}{c|}{920.6}         & \textbf{836.8 (-9.1\%)}                                                                                       \\ \hline
-		\multicolumn{1}{|c|}{Сцена 5} & \multicolumn{1}{c|}{87}           & \multicolumn{1}{c|}{556.8}         & \textbf{529.7 (-4.9\%)}                                                                                       \\ \hline
-		\multicolumn{1}{|c|}{Итого}   & \multicolumn{1}{c|}{409}          & \multicolumn{1}{c|}{1178.1}        & \textbf{1063.9 (-9.7\%)}                                                                                      \\ \hline
-	\end{tabular}
-\end{table}
-\end{frame}
-
-\begin{frame}{Карта проходимости пространства}
-	В данном исследования в качестве основной модели взята карта проходимости пространства. В рамках данной модели окружающее БТС пространство разбивается на двумерную сетку $M$, каждой клетке которой $m_i$ сопоставляется вероятность нахождения препятствия в клетке $p(m_i)$. 
-	
-	\begin{minipage}{0.6\linewidth}	
-		Для данной модели делаются следующие  предположения:
-		\begin{itemize}
-			\item БТС осуществляет движение в плоскости $OXY$;
-			\item Каждая клетка карты целиком либо занята, либо свободна;
-			\item Значение клетки $m_i$ -- независимая случайная величина;
-		\end{itemize}
+	\begin{minipage}{0.49\linewidth}\centering
+		\includegraphics[width=\textwidth]{images/nsys_splitting_wo_streams} \\ \fontsize{6}{7}\selectfont а) Без использования CUDA Streams
 	\end{minipage}
-	\begin{minipage}{0.39\linewidth}
-		\includegraphics[width=\linewidth]{Presentation/images/map_cells}
+	\hfill
+	\begin{minipage}{0.49\textwidth}\centering
+		\includegraphics[width=\textwidth]{images/nsys_splitting_with_streams} \\ \fontsize{6}{7}\selectfont б) После модификации с использованием CUDA Streams
 	\end{minipage}
 \end{frame}
 
+\begin{frame}{Комплексирование проекции с базовой картой проходимости пространства}
+	\footnotesize
+	Проекция не является самостоятельной моделью: сведений о препятствиях в ней нет. Она объединяется с картой базового лидарного алгоритма:
 
-\begin{frame}{Построение карты проходимости пространства на основе комплексирования разнородных данных}
+	\begin{itemize}
+		\item элементы <<свободно>> $\rightarrow l^c_+$;
+		\item элементы <<занято>> либо <<неизвестно>> в поле зрения камеры $\rightarrow l^c_-$;
+		\item остальные элементы $\rightarrow 0$; карты складываются байесовским обновлением.
+	\end{itemize}
+
+	Расхождение источников переводит элемент в состояние <<неизвестно>>:
+	$$l^c_- + l^b_+ \in (-l_t, l_t)$$
+
+	\vfill
+	\textbf{Два типа комплексирования в одном алгоритме:}
+	\begin{itemize}
+		\item \textbf{кооперативное} при проецировании: лидар --- геометрия поверхности, камера --- семантика;
+		\item \textbf{конкурирующее} при объединении карт: оба источника оценивают проходимость элемента.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Экспериментальное исследование. Набор данных}
+	\footnotesize
+	$5$~записей показаний датчиков БТС: объединённое облако точек с двух лидаров и изображения с трёх бортовых камер. Эталонные карты: $600\times600$ элементов, разрешение $10$~элементов на метр.
+
+	\begin{table}
+		\footnotesize
+		\centering
+		\begin{tabular}{|p{0.05\textwidth}|p{0.45\textwidth}|p{0.15\textwidth}|p{0.15\textwidth}|}
+			\hline
+			\textbf{№} & \textbf{Описание сценария} & \textbf{Длитель\-ность, с} & \textbf{Число кадров} \\
+			\hline
+			$1$ & Движение по прямой с разворачивающимся впереди автомобилем & $9,9$ & $91$ \\
+			\hline
+			$2$ & Начало движения при находящейся впереди группе пешеходов & $9,9$ & $90$ \\
+			\hline
+			$3$ & Поворот и движение вдоль парковки автомобилей & $9,9$ & $93$ \\
+			\hline
+			$4$ & Подъезд к перекрёстку & $4,9$ & $48$ \\
+			\hline
+			$5$ & Объезд препятствий & $9,9$ & $87$ \\
+			\hline
+		\end{tabular}
+	\end{table}
+
+	Источник сегментации --- нейросетевая модель YOLOP, дообученная на данных, собранных с реальных БТС.
+\end{frame}
+
+\begin{frame}{Экспериментальное исследование. Результаты}
+	\footnotesize
+	\begin{table}
+		\footnotesize
+		\centering
+		\begin{tabular}{|p{0.03\textwidth}|p{0.24\textwidth}|p{0.07\textwidth}|p{0.07\textwidth}|p{0.07\textwidth}|p{0.07\textwidth}|p{0.07\textwidth}|p{0.08\textwidth}|}
+			\hline
+			& \textbf{Алгоритм} & \multicolumn{5}{c|}{\textbf{Сценарий}} & \textbf{Среднее} \\
+			\cline{3-7}
+			& & $1$ & $2$ & $3$ & $4$ & $5$ & \\
+			\hline
+			Б & Базовый лидарный алгоритм & $1218,3$ & $1353,0$ & $1087,5$ & $932,0$ & $505,9$ & $1019,3$ \\
+			\hline
+			\textbf{П} & \textbf{Предложенный алгоритм} & \boldmath$1107,5$ & \boldmath$1213,9$ & \boldmath$949,0$ & \boldmath$850,9$ & \boldmath$500,5$ & \boldmath$924,4$ \\
+			\hline
+		\end{tabular}
+		\caption{\fontsize{6}{7}\selectfont Значения метрики PFC-MSE (меньше --- лучше). Наилучшие значения выделены полужирным.}
+	\end{table}
+
+	\begin{itemize}
+		\item Предложенный алгоритм превосходит базовый лидарный \textbf{во всех пяти сценариях}: PFC-MSE снижается на $9,3$~\%.
+		\item СКО относительно эталонной карты снижается с $0,231$ до $0,218$ ($-5,6$~\%), усреднённый по классам коэффициент Жаккара растёт с $0,225$ до $0,238$.
+		\item \textbf{Впервые показано}, что учёт визуальных данных с камер повышает качество карты проходимости пространства по сравнению с картой, строящейся исключительно по лидарным данным.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Экспериментальное исследование. Абляционное исследование}
+	\footnotesize
+	\textbf{А1} --- без учёта рельефа: проецирование на фиксированную плоскость $z_l = 0$.\\
+	\textbf{А2} --- конкурирующее комплексирование заменено дополняющим ($l^b_+ = 0$, $l^c_- = 0$).
+
+	\begin{table}
+		\footnotesize
+		\centering
+		\begin{tabular}{|c|c|c|c|c||c|c|c|}
+			\hline
+			& \multicolumn{4}{c||}{\textbf{Параметры}} & \multicolumn{3}{c|}{\textbf{Метрики}} \\
+			\cline{2-8}
+			& \boldmath$l^b_+$ & \boldmath$l^c_-$ & \boldmath$l^c_+$ & \textbf{рельеф} & \textbf{СКО} \tiny$\downarrow$ & \boldmath$mJ$ \tiny$\uparrow$ & \textbf{PFC-MSE} \tiny$\downarrow$ \\
+			\hline
+			Б & $0,490$ & --- & --- & --- & $0,231$ & $0,225$ & $1019,3$ \\
+			\hline
+			\textbf{П} & $0,490$ & $-0,080$ & $1,099$ & да & $0,218$ & \boldmath$0,238$ & \boldmath$924,4$ \\
+			\hline
+			А1 & $0,490$ & $-0,080$ & $1,099$ & нет & $0,236$ & $0,230$ & $1059,4$ \\
+			\hline
+			А2 & $0$ & $0$ & $1,099$ & да & \boldmath$0,183$ & $0,205$ & $1130,8$ \\
+			\hline
+		\end{tabular}
+	\end{table}
+
+	\begin{itemize}
+		\item Отказ от лидарной оценки рельефа (А1) ухудшает \textbf{все три} метрики --- вплоть до проигрыша базовому алгоритму, вовсе не использующему визуальные данные.
+		\item Замена конкурирующего комплексирования дополняющим (А2) ухудшает основную метрику.
+		\item А2 --- лучший по СКО и худший по PFC-MSE: поэлементная близость к эталону \textbf{не влечёт} пригодности карты для планирования маршрута.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Построенные карты проходимости пространства}
+	\centering
+	\includegraphics[height=0.82\textheight]{images/table_with_maps_new}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Глава 3. Программный комплекс
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[plain, noframenumbering]
+	\begin{center}
+		\Huge
+		Программный комплекс\\ построения карты\\ проходимости пространства
+	\end{center}
+\end{frame}
+
+\begin{frame}{Постановка задачи построения карты проходимости пространства}
 	\begin{minipage}{0.6\linewidth}
 		\footnotesize
 		\textbf{Имея:}
@@ -267,401 +531,138 @@
 	\end{minipage}
 \end{frame}
 
-\begin{frame}{Программный комплекc построения карты проходимости пространства на основе комплексирования разнородных данных}
-	\textbf{Разработан} программный комплекс, осуществляющий построение карты проходимости пространства, по получаемым измерениям с бортовых датчиков. 
-	
-	\centering
-	\includegraphics[width=\linewidth]{images/OMF_UML.png}
-\end{frame}	
+\begin{frame}{Программный комплекс Occupancy Map Fusion}
+	\footnotesize
+	\textbf{Разработан} программный комплекс, осуществляющий построение карты проходимости пространства по измерениям бортовых датчиков. Реализован на языках C++ и CUDA C++.
 
+	\centering
+	\includegraphics[width=0.95\linewidth]{images/OMF_UML.png}
+\end{frame}
 
 \begin{frame}{Функциональные возможности программного комплекса}
-	Программный комплекс предоставляет следующие функциональные возможности:
-	
+	\footnotesize
 	\begin{enumerate}
-		\item учёт данных разных форматов:
+		\item многопоточное обновление карты проходимости пространства на основе различных данных:
 		\begin{enumerate}
 			\item облака точек, принадлежащих препятствиям;
 			\item показаний сонара;
-			\item комплексирования двумерных детекций на изображении c камеры и облака точек препятствий;
-			\item комплексирования семантической сегментации проезжей части на RGB изображении c камеры и облака точек земли;
+			\item комплексирования двумерных детекций на RGB-изображении с камеры и облака точек с лидара, принадлежащих препятствиям;
+			\item комплексирования семантической сегментации проезжей части на RGB-изображении с камеры и облака точек с лидара, принадлежащих земле;
 			\item трёхмерных детекций препятствий;
-			\item готовые фрагменты карты проходимости;
 		\end{enumerate}
-		\item публикация получаемой карты проходимости пространства в формате ROS(Robot Operating System) сообщений;
-		\item опциональное удаление из карты проходимости пространства информации об областях, занимаемых динамическими препятствиями;
+		\item расширение поддерживаемых источников данных путём самостоятельной генерации пользователем фрагментов карты проходимости пространства;
+		\item публикация генерируемой карты проходимости пространства в виде ROS-сообщений (Robot Operating System);
+		\item опциональное удаление из карты информации об областях, занимаемых динамическими препятствиями;
+		\item отключение и подключение отдельных источников информации по ходу выполнения программы.
 	\end{enumerate}
 \end{frame}
 
+\begin{frame}{Принцип построения карты проходимости пространства}
+	\footnotesize
+	\begin{itemize}
+		\item По измерениям каждого датчика в отдельном потоке выполнения строится фрагмент карты, хранящий значения $l_+$, которые необходимо добавить на итоговую карту;
+		\item фрагменты складываются в очередь;
+		\item в отдельном потоке выполнения фрагменты извлекаются из очереди и добавляются на карту.
+	\end{itemize}
+
+	\centering
+	\includegraphics[width=0.95\linewidth]{images/OMF_dataflow.png}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Глава 4. Параллельный алгоритм
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}[plain, noframenumbering]
+	\begin{center}
+		\Huge
+		Параллельный алгоритм\\ построения карты\\ проходимости пространства
+	\end{center}
+\end{frame}
+
 \begin{frame}{Проблема обновления карты в единственном потоке выполнения}
-	При одновременном получении данных от нескольких датчиков, увеличивается время на обработку очереди фрагментов, что приводит к увеличению задержки учёта данных в итоговой карте проходимости пространства.
-	
+	\footnotesize
+	При одновременном получении данных от нескольких датчиков увеличивается время обработки очереди фрагментов, что увеличивает задержку учёта данных в итоговой карте.
+
 	\begin{figure}[H]
 		\centerfloat{
-			\subcaptionbox{$1$ источник данных. Время обновления карты -- $3.03$ мс.}{
+			\subcaptionbox{\fontsize{6}{7}\selectfont Один источник данных. Время обновления карты --- $3,03$~мс.}{
 				\includegraphics[width=0.8\linewidth]{images/perf-omf-1.png}}\\
-			\subcaptionbox{\fontsize{6}{7}\selectfont $8$ источников данных. Самое долгое обновление -- $22.78$ мс ($+652\%$)}{
+			\subcaptionbox{\fontsize{6}{7}\selectfont $8$ источников данных. Самое долгое обновление --- $22,78$~мс (замедление на $652$~\%).}{
 				\includegraphics[width=0.8\linewidth]{images/perf-omf-8.png}}\\
 		}
 	\end{figure}
 \end{frame}
 
-\begin{frame}\frametitle{Модификации алгоритма построения карты проходимости пространства}
-	
+\begin{frame}{Модификации алгоритма построения карты проходимости пространства}
+	\footnotesize
 	\begin{itemize}
-		\item В работе \textbf{предложено} три последовательные модификации оригинальной реализации.
+		\item В работе \textbf{предложено} три последовательные модификации оригинальной реализации:
 		\begin{itemize}
-			\item Предварительное выделение памяти для описания окружающего пространства смежного с текуще картой, 
-			\item Изменение формата хранимых элементов карты для обновления без блокировок,
-			\item Разделение карты на два участка для реализации сдвига карты без её блокировки,
+			\item предварительное выделение памяти для описания пространства, смежного с текущей картой;
+			\item изменение формата хранимых элементов карты для обновления без блокировок;
+			\item разделение карты на два участка для реализации сдвига карты без её блокировки.
 		\end{itemize}
 		\item Для упрощения модификации реализованы для одномерного случая.
 	\end{itemize}
-	
+
 	\centering
-	\centering
-	\includegraphics[width=\linewidth]{images/FullyLockFreeOMFShift}
-\end{frame}	
+	\includegraphics[width=0.95\linewidth]{images/FullyLockFreeOMFShift}
+\end{frame}
+
+\begin{frame}{Вычислительная сложность операций над картой}
+	\footnotesize
+	\begin{table}
+		\footnotesize
+		\centering
+		\begin{tabular}{|p{0.27\textwidth}|p{0.13\textwidth}|p{0.3\textwidth}|p{0.13\textwidth}|}
+			\hline
+			\textbf{Реализация} & \textbf{Сдвиг} & \textbf{Добавление фрагмента} & \textbf{Получение карты} \\
+			\hline
+			Базовая & $\Theta(N)$ & $O(N + \min(N_P,N))$ & $\Theta(N)$ \\
+			\hline
+			Расширенная карта & $\Theta(1)$\newline аморт. & $O(\min(N_P,N))$;\newline $O(\widehat{N} + \min(N_P,N))$ при затухании карты & $O(N)$ \\
+			\hline
+			С разделяемыми блокировками & $\Theta(1)$\newline аморт. & $O(\min(N_P,N))$,\newline допускает одновременное выполнение & $O(N)$ \\
+			\hline
+			С полным обновлением без блокировок & $\Theta(1)$ & $O(\min(N_P,N))$,\newline допускает одновременное выполнение & $O(N)$ \\
+			\hline
+		\end{tabular}
+		\caption{\fontsize{6}{7}\selectfont Для операций, допускающих одновременное выполнение несколькими потоками, сложность указана для одного вызова.}
+	\end{table}
+\end{frame}
 
 \begin{frame}{Экспериментальное исследование}
+	\footnotesize
 	\begin{itemize}
-		\item Предложенные модификации сравнивались с базовой реализацией.
-		\item Тестируемые сценарии:
+		\item Предложенные модификации сравнивались с базовой реализацией. Тестируемые сценарии:
 		\begin{itemize}
-			\item Сдвиг карты на $20$ клеток.
-			\item Добавление фрагментов в нескольких потоках выполнения. Размер добавляемых фрагментов $20$ пикселей, положение добавляемых фрагмнентов берётся из циклической очереди $-100$, $-50$, $-25$, $-1$, $0$, $1$, $5$, $10$, $25$, $50$, $100$. Количество потоков: $1$, $5$, $9$, $13$.
-			\item Получение карты проходимости пространства
-			\item Стандартный цикл обновления: $8$ источников данных добавляют фрагмент размера $100$ пикс и требуют сдвиг на $10$ пикселей, после добавления всех фрагментов производится получение итоговой карты проходимости пространства.
-		\end{itemize} 
-		\item Все сценарии производились над картами размера $N$: $10, 16, 32, 64, 128, 256, 516, 1024, 2048, 4000$ (для первых двух модификаций размер хранимого массива, а также размер одного участка последней модификации $\widehat{N}=2N$)
+			\item сдвиг карты на $20$ клеток;
+			\item добавление фрагментов в нескольких потоках выполнения ($1$, $5$, $9$, $13$ потоков); размер фрагмента --- $100$, положение берётся из циклической очереди $-100$, $-50$, $-25$, $-1$, $0$, $1$, $5$, $10$, $25$, $50$, $100$;
+			\item получение карты проходимости пространства;
+			\item \textbf{стандартный цикл обновления}: $8$ источников данных добавляют фрагмент размера $100$ и требуют сдвиг на $10$ клеток, после чего производится получение итоговой карты.
+		\end{itemize}
+		\item Все сценарии выполнялись над картами размера $N$: $10$, $16$, $32$, $64$, $128$, $256$, $512$, $1024$, $2048$, $4000$ (для модификаций $\widehat{N}=2N$).
+		\item Измерения на ПК с процессором AMD Ryzen~5 5600X ($6$~ядер, $4,6$~ГГц), ОЗУ $32$~ГБ.
 	\end{itemize}
 \end{frame}
 
 \begin{frame}{Экспериментальное исследование. Стандартный цикл обновления}
 	\footnotesize
-	\begin{itemize} 
-	\item Лучшую производительность показывает карта без блокировок: наклон в $13.89$ меньше исходной реализации. 
-	\item Следом идёт карта с разделяемыми блокировками -- наклон меньше в $11.52$ раз. 
-	\item Расширенная карта также превосходит базовую реализацию -- наклон меньше в $6.45$ раз.
+	\begin{itemize}
+	\item Лучшую производительность показывает карта без блокировок: наклон в \textbf{$13,89$~раза} меньше исходной реализации.
+	\item Следом идёт карта с разделяемыми блокировками --- наклон меньше в $11,52$~раза.
+	\item Расширенная карта также превосходит базовую реализацию --- наклон меньше в $6,45$~раза.
 	\end{itemize}
-	
-	\centering
-	\includegraphics[width=\linewidth]{images/_SinglePub_it4.png}
-\end{frame}
 
+	\centering
+	\includegraphics[width=0.95\linewidth]{images/_SinglePub_it4.png}
+\end{frame}
 
 \begin{frame}{Расширение совокупности модификаций на двумерный сценарий}
-	\textbf{Предложено} расширение на двумерный сценарий совокупной модификации, показавшей наилучшую производительность для стандартного цикла публикации. 
-	
+	\footnotesize
+	\textbf{Предложено} расширение на двумерный сценарий модификации, показавшей наилучшую производительность для стандартного цикла публикации: для движения в плоскости требуется $9$ массивов атомарных пар <<логарифм шансов --- время>>.
+
 	\centering
-	\includegraphics[width=0.6\linewidth]{images/Lockfree2D}
+	\includegraphics[width=0.55\linewidth]{images/Lockfree2D}
 \end{frame}
-
-
-\begin{comment}
-\section{Списки}
-\begin{frame}[plain, noframenumbering]
-    \begin{center}
-        \Huge
-        Списки
-     \end{center}
-\end{frame}
-
-\subsection{Нумерованные}
-о модификации
-\begin{frame}
-    \frametitle{Нумерованные списки}
-    \begin{enumerate}
-        \item один
-        \item два
-        \item три
-    \end{enumerate}
-\end{frame}
-\note{
-    Этот текст будет виден только если его отображение включено
-    в~файле \textbf{Presentation/setup}.
-    Для раздельного вывода презентации и заметок на~разные экраны (как
-    в~impress или powerpoint) можно использовать программу
-    \textit{pdf-presenter-console}.
-}
-
-\subsection{Не нумерованные}
-
-
-\begin{frame}
-    \frametitle{Перечисления}
-    \begin{itemize}
-        \item Проблема 1
-        \item Проблема 2
-        \item Проблема 3
-    \end{itemize}
-\end{frame}
-\note[itemize]{
-    \item Тезис 1
-    \item Тезис 2
-    \item Тезис 3
-}
-
-\subsection{Комбинированные}
-
-\begin{frame}
-    \frametitle{Комбинация списков}
-    \begin{enumerate}
-        \item \textbf{Задача 1}
-              \begin{itemize}
-                  \item Подзадача 1-1
-                  \item Подзадача 1-2
-              \end{itemize}
-        \item \textbf{Задача 2}
-              \begin{itemize}
-                  \item Подзадача 2-1
-                  \item Подзадача 2-2
-                  \item Подзадача 2-3
-              \end{itemize}
-        \item \textbf{Задача 3}
-              \begin{itemize}
-                  \item Подзадача 3-1
-                  \item Подзадача 3-2
-                  \item Подзадача 3-3
-              \end{itemize}
-    \end{enumerate}
-\end{frame}
-\note[itemize]{
-    \item Задача 1
-    \item Задача 2
-    \item Задача 3
-}
-
-\begin{frame}[allowframebreaks]
-    \frametitle{Разделение слайда}
-    Поясняющий текст
-    \begin{itemize}
-        \item Один
-        \item Два
-        \item Три
-    \end{itemize}
-    \framebreak
-    Продолжение предыдущего слайда
-\end{frame}
-
-\section{Графика}
-\begin{frame}[plain, noframenumbering]
-    \begin{center}
-        \Huge
-        Графика
-    \end{center}
-\end{frame}
-
-
-\begin{frame}
-    \frametitle{Одиночное изображение}
-    \centering
-    \includegraphics[width=0.8\linewidth]{latex} % окружение figure не требуется
-\end{frame}
-
-\begin{frame}
-    \frametitle{Векторная графика}
-    \begin{figure}
-        \centering
-        \ifdefmacro{\tikzsetnextfilename}{\tikzsetnextfilename{tikz_presentation}}{}% присваиваемое предкомпилированному pdf имя файла (не обязательно)
-        \input{Presentation/images/tikz_plot.tikz}
-    \end{figure}
-\end{frame}
-
-\subsection{Расположение}
-
-\begin{frame}
-    \frametitle{Изображения по-вертикали}
-    \centering
-    \vfill
-    \includegraphics[width=0.8\linewidth,height=0.1\textheight]{latex} \\
-    \TeX
-    \vfill
-    \includegraphics[width=0.8\linewidth,height=0.2\textheight]{latex} \\
-    \LaTeX
-    \vfill
-    \includegraphics[scale=0.2]{latex} \\
-    \vfill
-\end{frame}
-
-
-\begin{frame}
-    \frametitle{Изображения по-горизонтали}
-    \begin{minipage}[t]{0.47\linewidth}
-        \textbf{Составная \\ подпись 1}
-        \center{\includegraphics[width=1\linewidth]{knuth1}}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[t]{0.47\linewidth}
-        \textbf{Составная \\ подпись 2}
-        \center{\includegraphics[width=1\linewidth]{knuth2}}
-    \end{minipage}
-\end{frame}
-
-\subsection{Линии}
-
-\begin{frame}
-    \frametitle{Разделяющие линии}
-    \begin{minipage}[c]{0.47\linewidth}
-        \center{\includegraphics[width=1\linewidth]{latex}}
-        \bigskip
-        \hrule{}
-        \bigskip
-        \textbf{Составная \\ подпись 1}
-    \end{minipage}
-    \hfill
-    \vrule{}
-    \hfill
-    \begin{minipage}[c]{0.47\linewidth}
-        \flushright
-        \textbf{Составная \\ подпись 2}
-        \center{\includegraphics[width=1\linewidth]{knuth2}}
-    \end{minipage}
-\end{frame}
-
-\section{Остальное}
-\begin{frame}[plain, noframenumbering]
-    \begin{center}
-        \Huge
-        Остальное
-    \end{center}
-\end{frame}
-
-\subsection{Формулы}
-
-\begin{frame}
-    \frametitle{Формулы}
-    \[
-    \left\{
-    \begin{array}{rl}
-        \dot x = & \sigma (y-x)  \\
-        \dot y = & x (r - z) - y \\
-        \dot z = & xy - bz
-    \end{array}
-    \right.
-    \]
-\end{frame}
-
-\begin{frame}
-    \frametitle{amsmath}
-    \centering
-    \begin{minipage}[t]{0.5\linewidth}
-        \begin{multline*}
-            y = 1 x^1 + 2 x^2 + 3 x^3 + \\ + 4 x^4 + 5 x^5 + \dots
-        \end{multline*}
-    \end{minipage}
-\end{frame}
-
-\begin{frame}[allowframebreaks]
-    \frametitle{Уравнения Максвелла}
-    \centering{
-        \small
-        \def\arraystretch{1.8}%
-        \begin{tabular}{ll}
-            \toprule
-            Интегральная форма                                                                                                                                            & Дифференциальная форма                                                          \\ \midrule
-            \(Q_e(t) = \displaystyle\oiint_S \vec D(t) \cdot d\vec{s} = \displaystyle\iiint_V \rho_v(t) dv\)                                                              & \(\nabla \cdot \vec D(t) = \rho_v(t)\)                                          \\
-            \(\displaystyle\oiint_S \vec B(t) \cdot d\vec{s} = 0\)                                                                                                        & \(\nabla \cdot \vec B(t) = 0\)                                                  \\
-            \(V_{emf}(t) = \displaystyle\oint_L \vec E(t) \cdot d\vec{l}\) = \(- \displaystyle\iint_S \left[\frac{\partial\vec{B}(t)}{\partial t}\right] \cdot d\vec{s}\) & \(\nabla \times \vec E(t) = - \frac{\partial\vec{B}(t)}{\partial t}\)           \\
-            \(I(t) = \displaystyle\oint_L \vec H(t) \cdot d\vec{l} = \displaystyle\iint_S \left[\vec J(t) + \frac{\partial\vec{D}(t)}{\partial t}\right] \cdot d\vec{s}\) & \(\nabla \times \vec H(t) = \vec J(t) + \frac{\partial\vec{D}(t)}{\partial t}\) \\ \midrule
-            \(\displaystyle\oiint_S \vec J \cdot d\vec{s} = -\frac{\partial Q_e}{\partial t}\)                                                                            & \(\nabla \cdot \vec J = - \frac{\partial \rho_v}{\partial t}\)                  \\
-            \bottomrule
-            \multicolumn{2}{c}{\(\vec D(t) = \left[\varepsilon(t)\right] * \vec E(t)\)}                                                                                                                                                                     \\
-            \multicolumn{2}{c}{\(\vec B(t) = \left[\mu(t)\right] * \vec H(t)\)}                                                                                                                                                                             \\
-        \end{tabular}
-    }
-    \framebreak
-
-    \hspace{0.05\linewidth}
-    \centering{
-        \small
-        \def\arraystretch{1.8}%
-        \begin{tabular}{ll}
-            \toprule
-            Интегральная форма                                                                                                                & Дифференциальная форма                               \\ \midrule
-            \(Q_e = \displaystyle\oiint_S \vec D \cdot d\vec{s} = \displaystyle\iiint_V \rho_v dv\)                                           & \(\nabla \cdot \vec D = \rho_v\)                     \\
-            \(\displaystyle\oiint_S \vec B \cdot d\vec{s} = 0\)                                                                               & \(\nabla \cdot \vec B = 0\)                          \\
-            \(V_{emf} = \displaystyle\oint_L \vec E \cdot d\vec{l}\) = \(- \displaystyle\iint_S \left[j \omega \vec B\right] \cdot d\vec{s}\) & \(\nabla \times \vec E = - j \omega \vec B\)         \\
-            \(I = \displaystyle\oint_L \vec H \cdot d\vec{l} = \displaystyle\iint_S \left[\vec J + j \omega \vec D\right] \cdot d\vec{s}\)    & \(\nabla \times \vec H = \vec J + j \omega \vec{D}\) \\ \midrule
-            \(\displaystyle\oiint_S \vec J \cdot d\vec{s} = - j \omega Q_e\)                                                                  & \(\nabla \cdot \vec J = - j \omega \rho_v\)          \\
-            \bottomrule
-            \multicolumn{2}{c}{\(\vec D(t) = \left[\varepsilon\right] \vec E(t)\)}                                                                                                                   \\
-            \multicolumn{2}{c}{\(\vec B(t) = \left[\mu\right] \vec H(t)\)}                                                                                                                           \\
-        \end{tabular}
-    }
-\end{frame}
-
-\subsection{Таблицы}
-
-\begin{frame}
-    \frametitle{Таблица}
-    \centering
-    \begin{tabular}{|l|l|}
-        \hline
-        \textbf{Заголовок 1} & \textbf{Заголовок 2} \\
-        \hline
-        Сумма                & \(b+a\)              \\
-        \hline
-        Разность             & \(a-b\)              \\
-        \hline
-        Произведение         & \(a*b\)              \\
-        \hline
-    \end{tabular}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Другая таблица}
-    \centering
-    \begin{tabular}{lc}
-        \toprule
-        \multicolumn{1}{c}{\textbf{Заголовок 1}} & \textbf{Заголовок 2} \\ \midrule
-        Сумма                                    & \(b+a\)              \\
-        Разность                                 & \(a-b\)              \\
-        Произведение                             & \(a*b\)              \\
-        \bottomrule
-    \end{tabular}
-\end{frame}
-
-
-\subsection{Разное}
-
-\begin{frame}
-    \frametitle{Большой многоуровневый список}
-    \begin{itemize}
-        \item \textbf{Пункт 1}
-              \begin{itemize}
-                  \itemi Подпункт 1-1
-                  \itemi Подпункт 1-2
-              \end{itemize}
-        \item \textbf{Пункт 2}
-              \begin{itemize}
-                  \itemi Подпункт 2-1
-              \end{itemize}
-        \item \textbf{Пункт 3}
-              \begin{itemize}
-                  \itemi Подпункт 3-1
-                  \itemi Подпункт 3-2
-              \end{itemize}
-        \item \textbf{Пункт 4}
-              \begin{itemize}
-                  \itemi Подпункт 4-1
-              \end{itemize}
-        \item \textbf{Пункт 5}
-              \begin{itemize}
-                  \itemi Подпункт 5-1
-                  \itemi Подпункт 5-2
-                  \itemi Подпункт 5-3
-              \end{itemize}
-    \end{itemize}
-\end{frame}
-
-\begin{frame}
-    \frametitle{Четыре изображения}
-    \centering
-    \includegraphics[width=0.35\linewidth,angle=35]{latex}
-    \includegraphics[width=0.35\linewidth,angle=135]{latex}\\
-    \includegraphics[width=0.35\linewidth,angle=15]{latex}
-    \includegraphics[width=0.35\linewidth,angle=-15]{latex}
-\end{frame}
-
-\end{comment}
