@@ -1,4 +1,20 @@
 \begin{frame}
+    \frametitle{Основные результаты работы}
+    \fontsize{7.5}{9}\selectfont
+    \begin{enumerate}
+        \item Проведён обзор моделей окружающего пространства БТС и алгоритмов их построения. В качестве базовой модели выбрана карта проходимости пространства, в качестве основной метрики --- PFC-MSE; сформулированы требования к разрабатываемым алгоритмам.
+        \item Предложен алгоритм вписывания проекции объекта на виде сверху в ориентированную ограничивающую рамку на основе модели L-Shape. Средний коэффициент Жаккара --- $0,337$ против $0,328$ у ближайшего из известных геометрических алгоритмов; предложена реализация с временной сложностью $\Theta(N)$ вместо $\Theta(N^2)$.
+        \item Предложен алгоритм комплексирования визуальных и лидарных данных для оценки положения окружающих ТС, не использующий приближение поверхности дороги плоскостью. Средний коэффициент Жаккара --- $0,439$ против $0,399$ у наилучшего лидарного и $0,337$ у визуального алгоритма; среднее время обработки кадра --- $66,7$~мс при допустимых $100$~мс.
+        \item Предложен алгоритм проекции семантической сегментации проезжей части на плоскость движения БТС. В сочетании с базовым лидарным алгоритмом снижает СКО карты с $0,231$ до $0,218$ и PFC-MSE с $1019,3$ до $924,4$. Абляционное исследование показало, что без учёта рельефа преимущество утрачивается.
+        \item Разработан программный комплекс Occupancy Map Fusion, обеспечивающий построение карты проходимости пространства по разнородным данным бортовых датчиков; внедрён в БТС <<EVO.1>> и <<EVO.3>>.
+        \item Предложены структура данных для представления карты проходимости пространства и алгоритм её обновления, допускающий неблокирующее выполнение операций. Константа линейной вычислительной сложности цикла публикации карты уменьшена в $13,89$ раза; предложено расширение на двумерный случай.
+    \end{enumerate}
+\end{frame}
+\note{
+    Проговариваются основные результаты работы.
+}
+
+\begin{frame}
     \frametitle{Научная новизна}
     \fontsize{8}{10}\selectfont
     \begin{enumerate}
@@ -16,56 +32,58 @@
 \begin{frame}
     \frametitle{Практическая значимость и внедрение результатов}
     \footnotesize
-    Разработанные алгоритмы и комплекс технических средств, обеспечивающие построение модели окружающего пространства БТС, реализованные в данной работе, внедрены в беспилотные транспортные средства \textbf{<<EVO.1>>} и \textbf{<<EVO.3>>}, разработанные компанией ООО <<ЭвоКарго>>. Внедрение разработанных в данной диссертации методов подтверждено соответствующими актами.
+    \begin{minipage}[t]{0.56\linewidth}
+        Разработанные алгоритмы и комплекс технических средств, обеспечивающие построение модели окружающего пространства БТС, внедрены в беспилотные транспортные средства \textbf{<<EVO.1>>} и \textbf{<<EVO.3>>}, разработанные компанией ООО <<ЭвоКарго>>.
 
-    На результаты, полученные в работе, получены свидетельства о государственной регистрации программ для ЭВМ:
-    \begin{enumerate}
-    	\item №~2025617212 Программное обеспечение <<Система восприятия N1 V3>>.
-    	\item №~2025669744 Программное обеспечение <<Способ построения карты проходимости в окрестности высокоавтоматизированного беспилотного грузового транспортного средства>>.
-     \end{enumerate}
-
-     На основные результаты работы получен патент №~2853062 <<Способ построения карты проходимости в окрестности высокоавтоматизированного беспилотного грузового транспортного средства>>.
+        \medskip
+        Внедрение подтверждено соответствующими актами.
+    \end{minipage}\hfill
+    \begin{minipage}[t]{0.42\linewidth}\centering\vspace{-0.5em}
+        \fbox{\includegraphics[width=0.92\linewidth]{images/ChekanovAct.pdf}}
+    \end{minipage}
 \end{frame}
 \note{
-    Проговариваются вслух научная и практическая значимость
+    Проговариваются вслух научная и практическая значимость. Получен акт о внедрении.
 }
 
 \begin{frame}
-    \frametitle{Внедрение результатов диссертационного исследования}
-    \begin{figure}[h]
-        \centering
-        \fbox{
-            \begin{minipage}[t]{0.4\linewidth}
-                \includegraphics[width=\linewidth]{images/ChekanovAct.pdf}
-            \end{minipage}
-        }
-    \end{figure}
+    \frametitle{Свидетельства о регистрации программ для ЭВМ и патент на изобретение}
+    \centering
+    \begin{minipage}[b]{0.32\linewidth}\centering
+        \fbox{\includegraphics[width=0.95\linewidth]{images/2025617212.eod.pdf}}\\[0.3em]
+        \fontsize{6}{7}\selectfont №~2025617212
+    \end{minipage}\hfill
+    \begin{minipage}[b]{0.32\linewidth}\centering
+        \fbox{\includegraphics[width=0.95\linewidth]{images/2025669744.eod.pdf}}\\[0.3em]
+        \fontsize{6}{7}\selectfont №~2025669744
+    \end{minipage}\hfill
+    \begin{minipage}[b]{0.32\linewidth}\centering
+        \fbox{\includegraphics[width=0.95\linewidth]{images/2853062.eod.pdf}}\\[0.3em]
+        \fontsize{6}{7}\selectfont Патент №~2853062
+    \end{minipage}
 \end{frame}
 \note{
-    Получен акт о внедрении.
+    Два свидетельства о государственной регистрации программ для ЭВМ и патент на изобретение.
 }
 
-\begin{frame} % публикации на одной странице
-% \begin{frame}[t,allowframebreaks] % публикации на нескольких страницах
-    \frametitle{Публикации соискателя по теме диссертационной работы}
-    \fontsize{7.5}{9}\selectfont
+\begin{frame}
+    \frametitle{Публикации и апробация работы}
+    \fontsize{7}{8.4}\selectfont
     \begin{enumerate}
-    \item \textbf{Chekanov M.~O.}, Shipitko O. L-shape fitting algorithm for 3D object detection in bird's-eye-view in an autonomous driving system // \textbf{ICMV~2023}, Yerevan, Armenia. --- SPIE, 2024. --- Т.~13072. --- С.~40. --- DOI: 10.1117/12.3023477 \hfill \textit{(Scopus)}
+    \item \textbf{Chekanov M.~O.}, Shipitko O. L-shape fitting algorithm for 3D object detection in bird's-eye-view in an autonomous driving system // \textbf{ICMV~2023}, Yerevan, Armenia. --- SPIE, 2024. --- Т.~13072. --- С.~40. --- DOI: 10.1117/12.3023477 \hfill \textit{(Scopus, WoS)}
     \item \textbf{Чеканов М.~О.}, Кудряшова С.~В., Шипитько О.~С. Трёхмерная детекция объектов на основе L-shape модели в автономных системах движения // \textbf{Сенсорные системы}. --- 2025. --- Т.~39, №~1. --- С.~66--78. --- DOI: 10.31857/S0235009225010078 \hfill \textit{(ВАК)}
     \item \textbf{Chekanov M.~O.}, Shipitko O., Nikolaev D. Camera and lidar sensor fusion for projection of 2D detections into 3D coordinate space // \textbf{ECMS~2026 Proceedings}, Grimstad, Norway. --- ECMS, 2026. --- С.~259--266. --- DOI: 10.7148/2026-0259 \hfill \textit{(Scopus, WoS)}
     \item Воронков А.~Д., Рудоманенко А.~П., \textbf{Чеканов М.~О.} Алгоритм проекции семантической сегментации проезжей части на карту проходимости пространства с использованием лидарной оценки геометрии поверхности // \textbf{Информационные процессы}. --- 2026. --- Т.~26, №~2. --- С.~511--530. \hfill \textit{(ВАК)}
     \item \textbf{Чеканов М.~О.} Многопоточные неблокирующие алгоритмы построения карты проходимости пространства // \textbf{Информационные технологии и вычислительные системы}. --- 2026. --- №~2. --- С.~40--51. \hfill \textit{(ВАК)}
     \end{enumerate}
-\end{frame}
 
-\begin{frame} % публикации на одной странице
-	% \begin{frame}[t,allowframebreaks] % публикации на нескольких страницах
-		\frametitle{Апробация работы}
-		\begin{enumerate}
-			\item 16th International Conference on Machine Vision (ICMV~2023, Ереван, Армения);
-			\item 40th ECMS International Conference on Modelling and Simulation (ECMS~2026, Гримстад, Норвегия).
-		\end{enumerate}
-	\end{frame}
+    \medskip
+    Основные результаты работы докладывались на международных конференциях:
+    \begin{itemize}
+        \item 16th International Conference on Machine Vision (ICMV~2023, Ереван, Армения);
+        \item 40th ECMS International Conference on Modelling and Simulation (ECMS~2026, Гримстад, Норвегия).
+    \end{itemize}
+\end{frame}
 \note{
     Работа была представлена на ряде конференций.
 }
@@ -428,4 +446,114 @@
 	\end{itemize}
 	\centering
 	\includegraphics[width=0.95\linewidth]{images/_GetMap_it4.png}
+\end{frame}
+
+%%% Слайды, изъятые из основного блока при сокращении объёма
+
+\begin{frame}[noframenumbering]{Задача проекции визуальных детекций на плоскость движения БТС}
+	\begin{minipage}{0.6\linewidth}
+	 \fontsize{7}{8}\selectfont
+	\textbf{Имея:}
+	\begin{itemize}
+		\item детекции окружающих транспортных средств (ТС), полученного с камеры БТС в виде обрамляющих рамок с границами параллельными границам изображения: $\{d_0, \dots d_n\}, d_i = \left(u_{min_i}, v_{min_i}, u_{max_i}, v_{max_i}\right) \in \left(\left[0,\dots H-1\right]\times\left[0,\dots, W-1\right]\right)^2$, где $W$, $H$ -- ширина и высота изображения в пикс.,
+		\item семантическую сегментацию проезжей части для этого же изображения: $S: \left[0\dots H-1\right]\times\left[0\dots W-1\right] \rightarrow \{0,1\}$,
+		\item внутреннюю и внешнюю калибровки камеры,
+	\end{itemize}
+	\textbf{необходимо оценить} положение окружающих ТС в виде ориентированных ограничивающих рамок на плоскости $OXY$: $\{b_0,\dots, b_n\}, b_i=\left(x_{c,i}, y_{c,i}, \theta_i, w_i, h_i\right)\in\mathbb{R}^2 \times \left[-\pi, \pi\right) \times \mathbb{R}^2$, где $x_{c,i}, y_{c,i}$ -- положение центра рамки на плоскости $OXY$, $\theta_i$ -- угол поворота рамки, $w_i, h_i$ -- ширина и длина рамки.
+
+	Для решения задачи делаются следующие предположения:
+	\begin{itemize}
+		\item все ТС находятся на проезжей части;
+		\item проезжая часть лежит в плоскости $OXY$.
+	\end{itemize}
+	\end{minipage}
+	\begin{minipage}{0.39\linewidth}
+		\includegraphics[width=\linewidth]{projection_task}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}[noframenumbering]{Задача проекции визуальных детекций на основе комплексирования данных камеры и лидаров}
+\begin{minipage}{0.5\linewidth}
+	\fontsize{7}{8}\selectfont
+	\textbf{Имея:}
+	\begin{itemize}
+		\item детекции окружающих транспортных средств ТС с бортовой камеры,  $\{d_0, \dots d_n\}, d_i = \left(u_{min_i}, v_{min_i}, u_{max_i}, v_{max_i}\right) \in \left(\left[0,\dots H-1\right]\times\left[0,\dots, W-1\right]\right)^2$, где $W$, $H$ -- ширина и высота изображения в пикс.,
+		\item внутреннюю и внешнюю калибровки камеры,
+		\item \textbf{облако точек, полученного с лидаров БТС} $P: \{p_i, \dots, p_N\}, p_i\in\mathbb{R}^3 $
+	\end{itemize}
+	\textbf{необходимо оценить} положение окружающих ТС в виде ориентированных ограничивающих рамок на плоскости $OXY$: $\{b_0,\dots, b_n\}, b_i=\left(x_{c,i}, y_{c,i}, \theta_i, w_i, h_i\right)\in\mathbb{R}^2 \times \left[-\pi, \pi\right) \times \mathbb{R}^2$.
+
+	В рамках данной задачи \textbf{делается предположение}, что координата $z$ точек земли в лидарном облаке является реализацией некоторого гауссовского процесса.
+\end{minipage}
+\begin{minipage}{0.49\linewidth}
+	\includegraphics[width=\linewidth]{projection_with_lidars_task}
+\end{minipage}
+\end{frame}
+
+\begin{frame}[noframenumbering]{Задача проекции сегментации проезжей части на изображении на плоскость движения БТС}
+	\begin{minipage}{0.5\linewidth}
+		\footnotesize
+		\textbf{Имея:}
+		\begin{itemize}
+			\item семантическую сегментацию проезжей части на изображении с камеры БТС $S: \left[0\dots H-1\right]\times\left[0\dots W-1\right] \rightarrow \{0,1\}$,
+			\item внутреннюю и внешнюю калибровки камеры,
+			\item облако точек, полученного с лидаров БТС $P: \{p_i, \dots, p_N\}, p_i\in\mathbb{R}^3 $,
+		\end{itemize}
+		\textbf{необходимо оценить} проекцию проезжей части на плоскость движения БТС
+	\end{minipage}
+	\begin{minipage}{0.49\linewidth}
+		\includegraphics[width=\linewidth]{projection_segmentation_task}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}[noframenumbering]{Постановка задачи построения карты проходимости пространства}
+	\begin{minipage}{0.6\linewidth}
+		\footnotesize
+		\textbf{Имея:}
+		\begin{itemize}
+			\item известную траекторию движения БТС $\textbf{x}_{1:i}, i \in \mathbb{N}, \textbf{x}_i = \langle x_i, y_i, \theta_i \rangle$, где $(x_i, y_i)$ -- координаты БТС, $\theta_i$ -- угол его поворота в глобальной системе координат $O$ в момент времени $t_i$,
+			\item измерения, полученные от бортовых датчиков БТС: $\textbf{z}_{1:S,1:k}, S \in \mathbb{N}, k\in\mathbb{N}$ в моменты времени $(t_{s,1}\dots t_{s,k}), s \in \left[1,S\right]$, где $S$ -- число сенсоров,
+			\item известные положения датчиков относительно БТС,
+		\end{itemize}
+		\textbf{необходимо оценить} карту проходимости пространства, ориентированную параллельно осям глобальной системы координат $O$, элементам $m_i$ которой сопоставляется вероятность нахождения препятствий в описываемом ими пространстве.
+	\end{minipage}
+	\begin{minipage}{0.39\linewidth}
+		\includegraphics[width=\linewidth]{images/map_coords}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}[noframenumbering]{Функциональные возможности программного комплекса}
+	\footnotesize
+	\begin{enumerate}
+		\item многопоточное обновление карты проходимости пространства на основе различных данных:
+		\begin{enumerate}
+			\item облака точек, принадлежащих препятствиям;
+			\item показаний сонара;
+			\item комплексирования двумерных детекций на RGB-изображении с камеры и облака точек с лидара, принадлежащих препятствиям;
+			\item комплексирования семантической сегментации проезжей части на RGB-изображении с камеры и облака точек с лидара, принадлежащих земле;
+			\item трёхмерных детекций препятствий;
+		\end{enumerate}
+		\item расширение поддерживаемых источников данных путём самостоятельной генерации пользователем фрагментов карты проходимости пространства;
+		\item публикация генерируемой карты проходимости пространства в виде ROS-сообщений (Robot Operating System);
+		\item опциональное удаление из карты информации об областях, занимаемых динамическими препятствиями;
+		\item отключение и подключение отдельных источников информации по ходу выполнения программы.
+	\end{enumerate}
+\end{frame}
+
+\begin{frame}[noframenumbering]\frametitle{Экспериментальное исследование L-Shape: зависимость от дальности}
+	\begin{minipage}{0.4\linewidth}
+		\footnotesize
+		\begin{itemize}
+			\item \textbf{Показано}, что предлагаемый алгоритм превосходит аналоги: ближайший алгоритм имеет средний коэффициент Жаккара на $2,7$~\% ниже.
+			\item \textbf{Показано}, что качество всех алгоритмов начинает снижаться при оценке положения ТС, расположенных далее $10$~метров.
+		\end{itemize}
+	\end{minipage}
+	\begin{minipage}{0.59\linewidth}
+		\includegraphics[width=\linewidth]{images/l-shape_metrics}
+	\end{minipage}
+\end{frame}
+
+\begin{frame}[noframenumbering]{Построенные карты проходимости пространства}
+	\centering
+	\includegraphics[height=0.82\textheight]{images/table_with_maps_new}
 \end{frame}
