@@ -602,7 +602,15 @@ sorting=none,% настройка сортировки списка литера
 \newcommand*{\insertbibliofull}{
     \printbibliography[keyword=bibliofull,section=0,title=\bibtitlefull]
     \ifnumequal{\value{draft}}{0}{
-      \printbibliography[heading=nobibheading,env=counter,keyword=bibliofull,section=0]
+      % Счётный проход: вывод источников подавлен драйвером окружения `counter',
+      % однако само окружение всё равно порождает вертикальный материал. Если
+      % список литературы закончился ровно внизу полосы, этот материал открывает
+      % новую страницу, и она уходит в печать пустой. Поэтому собираем проход
+      % в отбрасываемый бокс: счётчики меняются глобально и сохраняются,
+      % а никакого вывода на полосу не попадает.
+      \begingroup
+        \setbox0=\vbox{\printbibliography[heading=nobibheading,env=counter,keyword=bibliofull,section=0]}%
+      \endgroup
     }{}
 }
 \newcommand*{\insertbiblioauthor}{
