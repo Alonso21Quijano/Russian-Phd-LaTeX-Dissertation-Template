@@ -629,8 +629,10 @@ sorting=none,% настройка сортировки списка литера
     \else
     \printbibliography[heading=pubsubgroup, section=0, keyword=biblioauthorvak,    title=\bibtitleauthorvak,resetnumbers=false] % Работы автора из списка ВАК (сквозная нумерация)
     \fi
-    \printbibliography[heading=pubsubgroup, section=0, keyword=biblioauthorwos,    title=\bibtitleauthorwos,resetnumbers=false]% Работы автора, индексируемые Web of Science
-    \printbibliography[heading=pubsubgroup, section=0, keyword=biblioauthorscopus, title=\bibtitleauthorscopus,resetnumbers=false]% Работы автора, индексируемые Scopus
+    % Одна общая группа вместо раздельных WoS и Scopus: работы, помеченные сразу
+    % authorwos и authorscopus, печатались бы дважды. Фильтр `scopuswos' уже определён
+    % выше; так же сделано в Synopsis/content.tex.
+    \printbibliography[heading=pubsubgroup, section=0, filter=scopuswos,           title={В изданиях, индексируемых Web of~Science и Scopus},resetnumbers=false]% Работы автора, индексируемые Web of Science и Scopus
     \printbibliography[heading=pubsubgroup, section=0, keyword=biblioauthorpatent, title=\bibtitleauthorpatent,resetnumbers=false]% Патенты
     \printbibliography[heading=pubsubgroup, section=0, keyword=biblioauthorprogram,title=\bibtitleauthorprogram,resetnumbers=false]% Программы для ЭВМ
     \printbibliography[heading=pubsubgroup, section=0, keyword=biblioauthorconf,   title=\bibtitleauthorconf,resetnumbers=false]% Тезисы конференций

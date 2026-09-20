@@ -9,6 +9,15 @@
 % Для вывода выберите и расскомментируйте одно из двух
 %\insertbiblioauthor                        % Подключаем Bib-базы: работы автора единым списком 
 \insertbiblioauthorgrouped                 % Подключаем Bib-базы: работы автора сгруппированные (ВАК, WoS, Scopus и т.д.)
+% Счётный проход окружения `counter' (biblio/biblatex.tex) наполняет счётчик citenum
+% для фразы <<Список литературы содержит N наименований>> во введении.
+% Идти он должен строго ПОСЛЕ всех видимых \printbibliography: при defernumbers=true
+% номер присваивается записи при первом выводе, и более ранний проход по keyword=bibliofull
+% пронумеровал бы работы автора в порядке .bbl, а не в порядке групп.
+% Вывод записей подавлен драйвером окружения, но вертикальный материал оно всё равно
+% порождает, поэтому собираем проход в отбрасываемый бокс --- иначе в печать может уйти
+% лишняя пустая страница.
+\ifnumequal{\value{draft}}{0}{\setbox0=\vbox{\printbibliography[heading=nobibheading,env=counter,keyword=bibliofull,section=0]}}{}
 \ifdefmacro{\microtypesetup}{\microtypesetup{protrusion=true}}{}
 \urlstyle{tt}                               % возвращаем установки шрифта ссылок URL
 %\hypersetup{ urlcolor={urlcolor} }          % Восстанавливаем цвет ссылок
