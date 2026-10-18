@@ -64,19 +64,21 @@
 Далее в разделе представлено подробное описание структуры данных компонентов, их назначение и форматы входных и выходных данных.
 
 \begin{landscape}
-\begin{figure}[ht!]
+\begin{figure}[!ht]
 	\centering
 	\includegraphics[width=\linewidth]{images/OMF_UML.png}
-	\legend{Цветом выделены <<идейно связанные>> компоненты: базовый класс и его наследники, либо класс и классы хранимых в нём (путём композиции) объектов.}
-	\caption{Диаграмма компонентов программного комплекса Occupancy Map Fusion на языке UML(Unified Modeling Language).}
+	\legend{Цветом выделены <<идейно связанные>> компоненты: базовый класс и его наследники, либо класс и классы хранимых в нём (путём композиции) объектов}
+	\caption{Диаграмма компонентов программного комплекса Occupancy Map Fusion на языке UML(Unified Modeling Language)}
 	\label{fig:omf_uml}
 \end{figure}
+\end{landscape}
 
-\begin{figure}[ht!]
+\begin{landscape}
+\begin{figure}[!ht]
 	\centering
 	\includegraphics[width=\linewidth]{images/OMF_dataflow.png}
-	\legend{Зелёным цветом выделены этапы обработки данных компонентами независящими от ROS(Robot Operating System), оранжевым -- компонентами, зависящими от ROS.}
-	\caption{Диаграмма деятельности программного комплекса Occupancy Map Fusion.}
+	\legend{Зелёным цветом выделены этапы обработки данных компонентами независящими от ROS(Robot Operating System), оранжевым -- компонентами, зависящими от ROS}
+	\caption{Диаграмма деятельности программного комплекса Occupancy Map Fusion}
 	\label{fig:omf_dataflow}
 \end{figure}
 \end{landscape}
@@ -159,7 +161,7 @@ using InputT = std::vector<std::vector<cv::Point2f>>;
 \begin{figure}
 	\centering
 	\includegraphics[width=0.5\linewidth]{images/occupied_fov.png}
-	\caption{Иллюстрация поля зрения, занимаемого препятствием.}
+	\caption{Иллюстрация поля зрения, занимаемого препятствием}
 	\label{fig:occupied_fov}
 \end{figure} 
 
@@ -488,7 +490,7 @@ using InputT = std::vector<std::vector<cv::Point2f>>;
 примечания в~соответствии с ГОСТ 2.105. Каждый вариант со своими достоинствами
 и~недостатками. Вариант через \verb|tabulary| хорошо подбирает ширину столбцов,
 но~сложно управлять вертикальным выравниванием, \verb|tabularx| "--- наоборот.
-\begin{table}[ht]%
+\begin{table}[htbp]%
     \caption{Нэ про натюм фюйзчыт квюальизквюэ}\label{tab:test3}% label всегда желательно идти после caption
     \begin{SingleSpace}
         \setlength\extrarowheight{6pt} %вот этим управляем расстоянием между рядами, \arraystretch даёт неудачный результат
@@ -546,7 +548,7 @@ using InputT = std::vector<std::vector<cv::Point2f>>;
 
 Если таблица~\cref{tab:test3} не помещается на той же странице, всё
 её~содержимое переносится на~следующую, ближайшую, а~этот текст идёт перед ней.
-\begin{table}[ht]%
+\begin{table}[htbp]%
     \caption{Любя, съешь щипцы, "--- вздохнёт мэр, "--- кайф жгуч}%
     \label{tab:test4}% label всегда желательно идти после caption
     \renewcommand{\arraystretch}{1.6}%% Увеличение расстояния между рядами, для улучшения восприятия.
