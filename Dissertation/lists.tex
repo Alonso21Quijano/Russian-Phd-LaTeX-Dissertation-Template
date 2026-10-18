@@ -1,3 +1,18 @@
+\makeatletter
+\newcommand{\listoffiguresfullwidth}{%
+    \begingroup
+    \def\@tocrmarg{0pt}%
+    \listoffigures
+    \endgroup
+}
+\newcommand{\listoftablesfullwidth}{%
+    \begingroup
+    \def\@tocrmarg{0pt}%
+    \listoftables
+    \endgroup
+}
+\makeatother
+
 \clearpage
 \ifdefmacro{\microtypesetup}{\microtypesetup{protrusion=false}}{} % не рекомендуется применять пакет микротипографики к автоматически генерируемым спискам
 \listoffigures  % Список изображений
@@ -5,6 +20,6 @@
 %%% Список таблиц %%%
 % (ГОСТ Р 7.0.11-2011, 5.3.10)
 \clearpage
-\listoftables   % Список таблиц
+\listoftablesfullwidth   % Список таблиц
 \ifdefmacro{\microtypesetup}{\microtypesetup{protrusion=true}}{}
 \newpage
