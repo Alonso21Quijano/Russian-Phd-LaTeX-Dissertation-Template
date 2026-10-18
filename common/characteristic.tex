@@ -57,22 +57,16 @@
 
 {\reliability} полученных результатов обеспечивается использованием строгого математического аппарата и результатами вычислительных и натурных экспериментов, а также внедрением разработанных методов в БТС, находящиеся в эксплуатации.
 
-{\probation}
-Основные результаты работы докладывались~на международных конференциях:
-\begin{itemize}
-	\item 16th International Conference on Machine Vision (ICMV~2023, Ереван, Армения);
-	\item 40th ECMS International Conference on Modelling and Simulation (ECMS~2026, Гримстад, Норвегия).
-\end{itemize}
- 
-
 {\contribution} Все результаты диссертации, вынесенные на защиту, получены автором самостоятельно. Постановка задач и обсуждение результатов проводились совместно с научным руководителем.
 
+{\publications} Основные научные результаты были опубликованы в~пяти рецензируемых изданиях, три из~которых включены в~перечень научных журналов, рекомендованных Московским физико-техническим институтом (МФТИ, Физтех). Кроме того, результаты исследований были представлены на~всероссийских и~международных конференциях:
+\begin{itemize}
+	\item 16th International Conference on Machine Vision (ICMV), 2023, Ереван, Армения;
+	\item 40th ECMS International Conference on Modelling and Simulation (ECMS), 2026, Гримстад, Норвегия.
+\end{itemize}
+
 \ifnumequal{\value{bibliosel}}{0}
-{%%% Встроенная реализация с загрузкой файла через движок bibtex8. (При желании, внутри можно использовать обычные ссылки, наподобие `\cite{vakbib1,vakbib2}`).
-    {\publications} Основные результаты по теме диссертации изложены
-    в~XX~печатных изданиях,
-    X из которых изданы в журналах, рекомендованных ВАК,
-    X "--- в тезисах докладов.
+{%%% Встроенная реализация с загрузкой файла через движок bibtex8.
 }%
 {%%% Реализация пакетом biblatex через движок biber
     \begin{refsection}[bl-author, bl-registered]
@@ -97,37 +91,8 @@
         \printbibliography[heading=nobibheading, section=1, env=countauthorscopuswos,    filter=scopuswos]}%
         %
         \nocite{*}%
-        %
-        {\publications} Основные результаты по теме диссертации изложены в~\arabic{citeauthor}~печатных изданиях,
-        \ifnum \value{citeauthorvak}>0\relax
-        \arabic{citeauthorvak} из которых изданы в журналах, рекомендованных ВАК%
-        \fi%
-        \ifnum \value{citeauthorscopuswos}>0%
-            , \arabic{citeauthorscopuswos} "--- в~изданиях, индексируемых Web of~Science и Scopus%
-        \fi%
-        \ifnum \value{citeauthorconf}>0%
-            , \arabic{citeauthorconf} "--- в~тезисах докладов.
-        \else%
-            .
-        \fi%
-        \ifnum \value{citeregistered}=1%
-            \ifnum \value{citeauthorpatent}=1%
-                Зарегистрирован \arabic{citeauthorpatent} патент.
-            \fi%
-            \ifnum \value{citeauthorprogram}=1%
-                Зарегистрирована \arabic{citeauthorprogram} программа для ЭВМ.
-            \fi%
-        \fi%
-        \ifnum \value{citeregistered}>1%
-            Зарегистрированы\ %
-            \ifnum \value{citeauthorpatent}>0%
-            \formbytotal{citeauthorpatent}{патент}{}{а}{}%
-            \ifnum \value{citeauthorprogram}=0 . \else \ и~\fi%
-            \fi%
-            \ifnum \value{citeauthorprogram}>0%
-            \formbytotal{citeauthorprogram}{программ}{а}{ы}{} для ЭВМ.
-            \fi%
-        \fi%
+        % Фраза о публикациях и апробации задана статически выше (по требованию редакции МФТИ),
+        % автоматический подсчёт публикаций в тексте не используется.
         % К публикациям, в которых излагаются основные научные результаты диссертации на соискание учёной
         % степени, в рецензируемых изданиях приравниваются патенты на изобретения, патенты (свидетельства) на
         % полезную модель, патенты на промышленный образец, патенты на селекционные достижения, свидетельства
