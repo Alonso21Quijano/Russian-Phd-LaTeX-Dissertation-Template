@@ -217,9 +217,9 @@
 
 
 
-\begin{frame}{Положения, выносимые на защиту}
-	\defposlist{1}
-\end{frame}
+% \begin{frame}{Положения, выносимые на защиту}
+% 	\defposlist{1}
+% \end{frame}
 
 \begin{frame}{Алгоритм проекции сегментации проезжей части на плоскость движения БТС}
 	\begin{minipage}{0.6\linewidth}
@@ -345,9 +345,9 @@
 	\end{itemize}
 \end{frame}
 
-\begin{frame}{Положения, выносимые на защиту}
-	\defposlist{2}
-\end{frame}
+% \begin{frame}{Положения, выносимые на защиту}
+% 	\defposlist{2}
+% \end{frame}
 
 
 
@@ -361,14 +361,11 @@
 	\fontsize{7.5}{9}\selectfont
 	\textbf{Разработан} программный комплекс, строящий карту проходимости пространства по измерениям бортовых датчиков (C++ и CUDA~C++). По измерениям каждого датчика в отдельном потоке выполнения строится фрагмент карты; фрагменты складываются в очередь и в отдельном потоке добавляются на карту.
 
-	\begin{minipage}[t]{0.53\linewidth}\centering
-		\includegraphics[width=\linewidth]{images/OMF_UML.png}\\
-		\fontsize{6}{7}\selectfont Архитектура программного комплекса
-	\end{minipage}\hfill
-	\begin{minipage}[t]{0.45\linewidth}\centering
-		\includegraphics[width=\linewidth]{images/OMF_dataflow.png}\\
-		\fontsize{6}{7}\selectfont Потоки данных при построении карты
-	\end{minipage}
+	\medskip
+	\centering
+	\makebox[\linewidth][c]{\includegraphics[width=0.96\paperwidth]{images/OMF_UML.png}}\par
+	\smallskip
+	Архитектура программного комплекса
 \end{frame}
 \note{
     Перечень поддерживаемых источников данных и функциональных возможностей --- в запасных слайдах.
@@ -395,9 +392,9 @@
 	Профилирование комплекса: при восьми источниках данных обновление карты занимает до $22,8$~мс --- меньше периода регистрации данных $100$~мс (условие~1).
 \end{frame}
 
-\begin{frame}{Положения, выносимые на защиту}
-	\defposlist{4}
-\end{frame}
+% \begin{frame}{Положения, выносимые на защиту}
+% 	\defposlist{4}
+% \end{frame}
 
 
 
@@ -463,6 +460,6 @@
     Остальные сценарии --- сдвиг карты, добавление фрагментов в нескольких потоках, получение карты --- и расширение на двумерный случай --- в запасных слайдах.
 }
 
-\begin{frame}{Положения, выносимые на защиту}
-	\defposlist{3}
-\end{frame}
+% \begin{frame}{Положения, выносимые на защиту}
+% 	\defposlist{3}
+% \end{frame}

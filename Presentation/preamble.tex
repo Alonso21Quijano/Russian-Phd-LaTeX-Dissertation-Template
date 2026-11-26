@@ -3,54 +3,48 @@
     \maketitle
 \end{frame}
 
-\begin{frame}{Беспилотные транспортные средства и их программные компоненты}
+\begin{frame}{Навигация беспилотных транспортных средств}
 	\footnotesize
-	Последние десятилетия характеризуются активным внедрением беспилотных транспортных средств (далее \textbf{БТС}) в логистике, промышленности, сельском хозяйстве, горном деле и городской инфраструктуре.
+	Беспилотные транспортные средства (\textbf{БТС}) применяются в логистике, промышленности, сельском хозяйстве, горном деле и городской инфраструктуре.
 
 	\centering
-	\includegraphics[width=0.155\linewidth]{Presentation/images/usage_1}\hfill
-	\includegraphics[width=0.155\linewidth]{Presentation/images/usage_2}\hfill
-	\includegraphics[width=0.155\linewidth]{Presentation/images/usage_3}\hfill
-	\includegraphics[width=0.155\linewidth]{Presentation/images/usage_4}\hfill
-	\includegraphics[width=0.155\linewidth]{Presentation/images/usage_5}
+	\includegraphics[width=0.193\linewidth]{Presentation/images/usage_1}\hfill
+	\includegraphics[width=0.193\linewidth]{Presentation/images/usage_2}\hfill
+	\includegraphics[width=0.193\linewidth]{Presentation/images/usage_3}\hfill
+	\includegraphics[width=0.193\linewidth]{Presentation/images/usage_4}\hfill
+	\includegraphics[width=0.193\linewidth]{Presentation/images/usage_5}
 
 	\medskip
-	Программные компоненты БТС\footnotemark[1]:
+	Независимо от назначения критически важную для БТС роль играет качество и своевременность решения \textbf{задачи навигации}.
 
 	\medskip
-	{\centering
-	\fontsize{6.2}{7.4}\selectfont
-	\setlength{\fboxsep}{2.5pt}%
-	\presblock{0.115\linewidth}{\textbf{Датчики БТС}}%
-	{ $\rightarrow$ }%
-	\presblock{0.34\linewidth}{\textbf{Восприятие}\\[2pt]
-		\pressub{Локализация}\\[2pt]
-		\pressubhl{\textbf{Построение модели окружающего пространства}\\ \textit{предмет настоящей работы}}\\[2pt]
-		\pressub{Детектирование и сопровождение объектов}}%
-	{ $\rightarrow$ }%
-	\presblock{0.21\linewidth}{\textbf{Планирование}\\[2pt]
-		\pressub{Глобальное и локальное планирование маршрута}}%
-	{ $\rightarrow$ }%
-	\presblock{0.115\linewidth}{\textbf{Управление}}\par}
-	\footnotetext[1]{\fontsize{6}{7}\selectfont SAE On-Road Automated Vehicle Standards Committee. Taxonomy and definitions for terms related to on-road motor vehicle automated driving systems: SAE~Standard~J3016. --- 2014.}
+	\includegraphics[height=3.2cm]{Presentation/images/bot_crash_1.jpg}\hspace{0.3cm}%
+	\includegraphics[height=3.2cm]{Presentation/images/bot_crash_2.png}\par
+	\smallskip
+	Ошибка навигации может вывести БТС из строя.
 \end{frame}
 \note{
     Развитие беспилотного транспорта входит в перечень критических технологий РФ;
     Транспортная стратегия РФ до 2030 года включает движение БТС по дорогам общего пользования.
-    Предмет работы --- построение модели окружающего пространства в составе системы восприятия.
 }
 
 \begin{frame}{Модель окружающего пространства}
-	Для планирования безопасного маршрута БТС требуется \textbf{модель окружающего пространства}. Требования к модели:
+	\footnotesize
+	Система восприятия строит \textbf{модель окружающего пространства} (\textit{World Map} на схеме). По этой модели БТС планирует безопасный маршрут.
 
-	\begin{itemize}
-		\item степень детализации описания пространства,
-		\item вычислительная сложность построения модели,
-		\item объём занимаемой памяти вычислителя.
-	\end{itemize}
+	\medskip
+	{\centering
+	\includegraphics[width=\linewidth]{Presentation/images/AV_Arch.png}
+	}
 
-	\includegraphics[width=\linewidth]{Presentation/images/PerceptionTask.drawio}
+	\medskip
+	При выборе модели учитывают степень детализации пространства, вычислительную сложность построения модели и объём занимаемой памяти.
+	
+	\footnotetext[1]{Thorn E., Kimmel S. C., Chaka M. \href{https://rosap.ntl.bts.gov/view/dot/38824}{\textit{A Framework for Automated Driving System Testable Cases and Scenarios}}. NHTSA, 2018. DOT~HS~812~623.}
 \end{frame}
+\note{
+    Предмет работы --- построение модели окружающего пространства в составе системы восприятия.
+}
 
 \begin{frame}{Датчики БТС и комплексирование данных}
 	\footnotesize
@@ -82,7 +76,7 @@
 	\end{table}
 
 	\vspace{-0.5em}
-	Ни один тип датчика по отдельности не даёт одновременно высокого разрешения и непосредственного измерения расстояния $\Rightarrow$ требуется \textbf{комплексирование данных}. По характеру взаимодействия комплексируемых данных\footnote{\fontsize{6}{7}\selectfont Durrant-Whyte H.~F. Sensor models and multisensor integration // The International Journal of Robotics Research. --- 1988.} выделяют \textbf{конкурирующее} (источники оценивают одно и то же свойство), \textbf{дополняющее} (источники описывают разные свойства) и \textbf{кооперативное} (свойство недоступно ни одному источнику по отдельности).
+	Ни один тип датчика по отдельности не даёт одновременно высокого разрешения и непосредственного измерения расстояния $\Rightarrow$ требуется \textbf{комплексирование данных}. %По характеру взаимодействия комплексируемых данных\footnote{\fontsize{6}{7}\selectfont Durrant-Whyte H.~F. Sensor models and multisensor integration // The International Journal of Robotics Research. --- 1988.} выделяют \textbf{конкурирующее} (источники оценивают одно и то же свойство), \textbf{дополняющее} (источники описывают разные свойства) и \textbf{кооперативное} (свойство недоступно ни одному источнику по отдельности).
 \end{frame}
 \note{
     Наблюдается тренд на увеличение числа датчиков на БТС.
