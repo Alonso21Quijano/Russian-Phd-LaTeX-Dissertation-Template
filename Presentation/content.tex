@@ -23,29 +23,50 @@
 	$$l_{t,i} = l_{t-1,i} + \underbrace{\ln\dfrac{p(m_i|z_t, x_t)}{1 - p(m_i|z_t, x_t)}}_{\text{обратная модель наблюдения}} - \; l_{0,i}$$
 \end{frame}
 
-\begin{frame}{Метрики оценки качества карты проходимости пространства}
+% Исходная пиктограмма БТС с прозрачным фоном находится в /home/mikhail/Pictures/vehicle.png.
+\newcommand{\pfcjunctionmap}[1]{%
+	\begingroup
+	\setlength{\unitlength}{\dimexpr0.30\linewidth/100\relax}%
+	\begin{picture}(100,100)
+		\put(0,0){\includegraphics[width=100\unitlength]{Presentation/images/pfc_t_junction/#1}}
+		% Верхний край значка на строке 49 карты, ось y в picture направлена вверх.
+		\put(45,51){\makebox(0,0)[lt]{\includegraphics[width=9\unitlength]{Presentation/images/vehicle.png}}}
+	\end{picture}%
+	\endgroup}
+
+\begin{frame}{Оценка карты по стоимости кратчайших путей}
 	\footnotesize
-	Поэлементные метрики (СКО, коэффициент Жаккара) штрафуют ошибку одинаково независимо от того, где на карте она допущена. Для задачи планирования маршрута это не показательно:
+	\textbf{PFC-MSE} сравнивает эталонную ($GT$) и оцениваемую ($I$) карты по нормированным стоимостям кратчайших путей от БТС до каждой клетки.\footnote{\fontsize{6}{7}\selectfont Horel J.-B. et al. \href{https://convecs.inria.fr/doc/publications/Horel-Baruffa-Rummelhard-et-al-23.pdf}{A Navigation-Based Evaluation Metric for Probabilistic Occupancy Grids}. IEEE ITSC, 2023.}
+	\[
+		\mathrm{PFC\text{-}MSE}(GT,I) =
+		\frac{\sum_c w_c\bigl(GT_{\mathrm{cost}}(c)-I_{\mathrm{cost}}(c)\bigr)^2}{\sum_c w_c},
+		\qquad w_c=1-GT(c)\,I(c).
+	\]
 
-	\begin{figure}
-		\centerfloat{
-			\hfill
-			\subcaptionbox{\fontsize{6}{7}\selectfont Эталонная карта.}{
-				\includegraphics[width=0.26\linewidth]{images/bad_metrics_gt.png}}
-			\hfill
-			\subcaptionbox{\fontsize{6}{7}\selectfont Препятствие дальше эталонного положения.}{%
-				\includegraphics[width=0.26\linewidth]{images/bad_metrics_far.png}}
-			\hfill
-			\subcaptionbox{\fontsize{6}{7}\selectfont Препятствие ближе эталонного положения.}{%
-				\includegraphics[width=0.26\linewidth]{images/bad_metrics_close.png}}
-			\hfill
-		}
-	\end{figure}
+	Вероятность занятости белых клеток равна 0, серых --- $0{,}2$, чёрных --- 1.
 
-	Карты б) и в) равны по поэлементным метрикам, но карта б) \textbf{опаснее}. Поэтому основной метрикой выбрана \textbf{PFC-MSE}\footnote{\fontsize{6}{7}\selectfont Horel J.-B. et al. Navigation Oriented Evaluation of Occupancy Grids. --- 2023.}: сравниваются стоимости кратчайших путей от БТС до каждой клетки:
+	\smallskip
+	{\centering
+	\setlength{\tabcolsep}{0pt}
+	\setlength{\fboxsep}{0pt}
+	\setlength{\fboxrule}{0.25pt}
+	\begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}ccc@{}}
+		\fbox{\pfcjunctionmap{gt/junction_0.000.png}} &
+		\fbox{\pfcjunctionmap{i/front_1.000.png}} &
+		\fbox{\pfcjunctionmap{i/curb_2.000.png}} \\
+		{\scriptsize а) Эталон} & {\scriptsize б) Препятствие перед БТС} & {\scriptsize в) Препятствие справа} \\
+		& \textbf{PFC-MSE $\approx$ 53,3} & \textbf{PFC-MSE $\approx$ 53,0}
+	\end{tabular*}\par}
 
-	$$\text{PFC-MSE}(GT, I) = \dfrac{\sum_c w_c||GT_{cost}(c) - I_{cost}(c)||_2}{\sum_c w_c},\quad w_c = p(c = free)$$
+	\smallskip
+	От старта до каждого квадрата $10\times10$ --- шесть шагов по сетке $100\times100$. Для обеих карт $\mathrm{MSE}\approx0{,}03$ и $mJ\approx0{,}98$.
 \end{frame}
+\note{
+	На сетке $100\times100$ старт для всех карт --- столбец 49, строка 49 при отсчёте от нуля с левого верхнего угла. Он расположен у передней кромки значка БТС, направленного вверх. Передний квадрат занимает столбцы 45--54 и строки 34--43, правый --- столбцы 55--64 и строки 45--54 включительно. Один квадрат получается из другого поворотом вокруг старта на $90^\circ$. Между правым квадратом и тротуаром три свободные клетки. В обоих случаях по проезжей части достижимы все оставшиеся свободные клетки.
+	Эталон бинарный. Вероятность занятости проезжей части равна 0 в эталоне и $0{,}2$ в обеих оценках. Для препятствий она равна 1. Значок БТС добавлен на иллюстрации после расчёта.
+	Утилита pfc\_mse использует восемь соседей. Прямой шаг по проезжей части стоит 1 в эталоне и $1+99\cdot0{,}2=20{,}8$ в оценках. Это различие накапливается вдоль пути. Даже без ложного препятствия получается PFC-MSE $52{,}565$. При добавлении переднего квадрата значение равно $53{,}305$, правого --- $53{,}006$. Для переднего квадрата PFC-MSE на $0{,}564\,\%$ выше, чем для бокового.
+	В каждой оценке ошибочно заняты 100 клеток. В остальных $4\,506$ клетках дороги ошибка вероятности занятости равна $0{,}2$. Отсюда $\mathrm{MSE}=(100+4\,506\cdot0{,}2^2)/100^2=0{,}028024$. При пороге $0{,}5$ среднее коэффициентов Жаккара по двум классам $mJ\approx0{,}980044$.
+}
 
 \begin{frame}{Выводы обзора и требования к разрабатываемым алгоритмам}
 	\footnotesize
